@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+
+CONF_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+export TACHYON_HDFS_ADDRESS=hdfs://localhost:9000
+
+export TACHYON_JAVA_OPTS="
+  -Dtachyon.debug=true
+  -Dtachyon.worker.timeout.ms=60000
+  -Dtachyon.underfs.address=$TACHYON_HDFS_ADDRESS
+  -Dtachyon.worker.memory.size=1024MB
+  -Dtachyon.worker.data.folder=/mnt/ramdisk/tachyonworker/
+  -Dtachyon.master.hostname=localhost
+  -Dtachyon.master.log.file=$TACHYON_HDFS_ADDRESS/tachyon/tachyon_log.data
+  -Dtachyon.master.checkpoint.file=$TACHYON_HDFS_ADDRESS/tachyon/tachyon_checkpoint.data
+  -Dtachyon.master.pinlist=/pinfiles;/pindata
+"
