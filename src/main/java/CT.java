@@ -1,43 +1,95 @@
 package CodeTracer;
 
+import java.lang.management.ManagementFactory;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.ConcurrentHashMap;
+import org.apache.log4j.Logger;
+
+
 public class CT implements AutoCloseable
 {
-	private static int _indent = 0;
+	private static ConcurrentMap<String, Integer> _ind_map = new ConcurrentHashMap<String, Integer>();
+
+  private static Logger _logger;
+
+  static public void setLogger(Logger logger)
+  {
+    _logger = logger;
+  }
 
 	public CT()
 	{
 		StackTraceElement ste = Thread.currentThread().getStackTrace()[2];
-		_Print("-> " + ste);
-		++ _indent;
+		_Print("-> " + ste, 1);
 	}
 
 	@Override
 	public void close() {
-		-- _indent;
 		StackTraceElement ste = Thread.currentThread().getStackTrace()[2];
-		_Print("<- " + ste);
+		_Print("<- " + ste, -1);
 	}
 
-	void Print(String s)
+	public void Print(String s)
 	{
-		for (int i = 0; i < _indent; ++ i)
-			System.out.print("  "); 
-		System.out.print(" "); 
-		System.out.println(s);
+		String pid = ManagementFactory.getRuntimeMXBean().getName().split("@")[0];
+		Thread t = Thread.currentThread();
+		long tid = t.getId();
+		String pidtid = pid + " " + tid;
+		//System.out.print(pidtid + " " + t.getName() + " | ");
+    String logstr = pidtid + " " + t.getName() + " | ";
+
+		int ind = 0;
+		if (_ind_map.containsKey(pidtid))
+			ind = _ind_map.get(pidtid);
+		for (int i = 0; i < ind; ++ i)
+			//System.out.print("  ");
+      logstr += "  ";
+		//System.out.print(" ");
+    logstr += " ";
+		//System.out.println(s);
+    logstr += s;
+
+    _logger.info(logstr);
 	}
 
-	private void _Print(String s)
+	private void _Print(String s, int indinc)
 	{
-		for (int i = 0; i < _indent; ++ i)
-			System.out.print("  "); 
-		System.out.println(s);
+		String pid = ManagementFactory.getRuntimeMXBean().getName().split("@")[0];
+		Thread t = Thread.currentThread();
+		long tid = t.getId();
+		String pidtid = pid + " " + tid;
+
+		int ind = 0;
+		if (_ind_map.containsKey(pidtid))
+			ind = _ind_map.get(pidtid);
+
+		if (indinc == -1)
+		{
+			-- ind;
+			_ind_map.put(pidtid, ind);
+		}
+
+    String logstr = pidtid + " " + t.getName() + " | ";
+		//System.out.print(pidtid + " " + t.getName() + " | ");
+
+		for (int i = 0; i < ind; ++ i)
+      logstr += "  ";
+			//System.out.print("  ");
+		//System.out.println(s);
+    logstr += s;
+    _logger.info(logstr);
+
+		if (indinc == 1)
+		{
+			++ ind;
+			_ind_map.put(pidtid, ind);
+		}
 	}
 
 	static void func1() throws Exception
 	{
 		try (CT ct_ = new CT()) {
 			ct_.Print("aaa");
-			// throw new Exception();
 			func2();
 		}
 	}
@@ -52,13 +104,15 @@ public class CT implements AutoCloseable
 
 	public static void main(String[] args)
 	{
-		try
-		{
-			func1();
-		}
-		catch (Exception e)
-		{
-			System.out.println("Caught an exception: " + e);
+		try (CT ct_ = new CT()) {
+			try
+			{
+				func1();
+			}
+			catch (Exception e)
+			{
+				ct_.Print("Caught an exception: " + e);
+			}
 		}
 	}
 }
