@@ -12,13 +12,24 @@ public class CT implements AutoCloseable
 
   private static Logger _logger;
 
+  String _input = null;
+  String _returns = null;
+
   static public void setLogger(Logger logger)
   {
     _logger = logger;
   }
 
-	public CT()
+	public CT(Object... objs)
 	{
+    for (Object o: objs)
+    {
+      if (_input == null)
+        _input = o.toString();
+      else
+        _input += (", " + o.toString());
+    }
+
 		StackTraceElement ste = Thread.currentThread().getStackTrace()[2];
 		_Print("-> " + ste, 1);
 	}
@@ -52,6 +63,17 @@ public class CT implements AutoCloseable
     _logger.info(logstr);
 	}
 
+  public void Returns(Object... objs)
+  {
+    for (Object o: objs)
+    {
+      if (_returns == null)
+        _returns = o.toString();
+      else
+        _returns += (", " + o.toString());
+    }
+  }
+
 	private void _Print(String s, int indinc)
 	{
 		String pid = ManagementFactory.getRuntimeMXBean().getName().split("@")[0];
@@ -77,6 +99,10 @@ public class CT implements AutoCloseable
 			//System.out.print("  ");
 		//System.out.println(s);
     logstr += s;
+    if (indinc == 1 && _input != null)
+      logstr += (" in " + _input);
+    else if (indinc == -1 && _returns != null)
+      logstr += (" ret " + _returns);
     _logger.info(logstr);
 
 		if (indinc == 1)
