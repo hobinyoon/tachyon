@@ -15,6 +15,8 @@ import tachyon.conf.WorkerConf;
 import tachyon.thrift.Command;
 import tachyon.thrift.WorkerService;
 
+import CodeTracer.CT;
+
 /**
  * Entry point for a worker daemon.
  */
@@ -36,6 +38,7 @@ public class Worker implements Runnable {
   private Worker(InetSocketAddress masterAddress, InetSocketAddress workerAddress, int dataPort,
       int selectorThreads, int acceptQueueSizePerThreads, int workerThreads,
       String dataFolder, long memoryCapacityBytes) {
+    try (CT _ = new CT()) {
     DataFolder = dataFolder;
     MemoryCapacityBytes = memoryCapacityBytes;
 
@@ -52,7 +55,7 @@ public class Worker implements Runnable {
     mHeartbeatThread = new Thread(this);
 
     try {
-      LOG.info("The worker server tries to start @ " + workerAddress);
+      _.Info("The worker server tries to start @ " + workerAddress);
       WorkerService.Processor<WorkerServiceHandler> processor =
           new WorkerService.Processor<WorkerServiceHandler>(mWorkerServiceHandler);
 
@@ -69,7 +72,7 @@ public class Worker implements Runnable {
       LOG.error(e.getMessage(), e);
       System.exit(-1);
     }
-  }
+  } }
 
   @Override
   public void run() {
@@ -144,13 +147,14 @@ public class Worker implements Runnable {
   }
 
   public void start() {
+    try (CT _ = new CT()) {
     mDataServerThread.start();
     mHeartbeatThread.start();
 
-    LOG.info("The worker server started @ " + WorkerAddress);
+    _.Info("The worker server started @ " + WorkerAddress);
     mServer.serve();
-    LOG.info("The worker server ends @ " + WorkerAddress);
-  }
+    _.Info("The worker server ends @ " + WorkerAddress);
+  } }
 
   @SuppressWarnings("deprecation")
   public void stop() throws IOException {
@@ -164,6 +168,8 @@ public class Worker implements Runnable {
   }
 
   public static void main(String[] args) throws UnknownHostException {
+    CT.setLogger(LOG);
+    try (CT _ = new CT()) {
     if (args.length != 1) {
       LOG.info("Usage: java -cp target/tachyon-" + Version.VERSION + "-jar-with-dependencies.jar " +
           "tachyon.Worker <WorkerHost>");
@@ -175,7 +181,7 @@ public class Worker implements Runnable {
         wConf.SELECTOR_THREADS, wConf.QUEUE_SIZE_PER_SELECTOR,
         wConf.SERVER_THREADS, wConf.DATA_FOLDER, wConf.MEMORY_SIZE);
     worker.start();
-  }
+  } }
 
   /**
    * Get the worker server handler class. This is for unit test only. 

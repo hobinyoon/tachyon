@@ -17,6 +17,9 @@ import tachyon.thrift.FileAlreadyExistException;
 import tachyon.thrift.InvalidPathException;
 import tachyon.thrift.SuspectedFileSizeException;
 
+import CodeTracer.CT;
+
+
 public class BasicOperations {
   private static Logger LOG = Logger.getLogger(Constants.LOGGER_TYPE);
 
@@ -25,13 +28,15 @@ public class BasicOperations {
   private static OpType sWriteType = null;
 
   public static void createFile() throws InvalidPathException, FileAlreadyExistException {
+    try (CT ct_ = new CT()) {
     long startTimeMs = CommonUtils.getCurrentMs();
     int fileId = sTachyonClient.createFile(sFilePath);
     CommonUtils.printTimeTakenMs(startTimeMs, LOG, "createFile with fileId " + fileId);
-  }
+  } }
 
   public static void writeFile()
       throws SuspectedFileSizeException, InvalidPathException, IOException {
+    try (CT ct_ = new CT()) {
     ByteBuffer buf = ByteBuffer.allocate(80);
     buf.order(ByteOrder.nativeOrder());
     for (int k = 0; k < 20; k ++) {
@@ -47,10 +52,11 @@ public class BasicOperations {
     OutStream os = file.getOutStream(sWriteType);
     os.write(buf);
     os.close();
-  }
+  } }
 
   public static void readFile()
       throws SuspectedFileSizeException, InvalidPathException, IOException {
+    try (CT ct_ = new CT()) {
     LOG.info("Reading data...");
     TachyonFile file = sTachyonClient.getFile(sFilePath);
     ByteBuffer buf = file.readByteBuffer();
@@ -59,7 +65,7 @@ public class BasicOperations {
     }
     CommonUtils.printByteBuffer(LOG, file.readByteBuffer());
     file.releaseFileLock();
-  }
+  } }
 
   public static void main(String[] args)
       throws SuspectedFileSizeException, InvalidPathException, IOException,

@@ -15,6 +15,8 @@ import java.util.Map;
 import org.apache.thrift.TException;
 import org.apache.log4j.Logger;
 
+import CodeTracer.CT;
+
 /**
  * The Server to serve data file read request from remote machines. The current implementation
  * is based on non-blocking NIO.
@@ -43,7 +45,8 @@ public class DataServer implements Runnable {
   private boolean mShutdowned = false;
 
   public DataServer(InetSocketAddress address, WorkerServiceHandler workerServiceHandler) {
-    LOG.info("Starting DataServer @ " + address);
+    try (CT _ = new CT()) {
+    _.Info("Starting DataServer @ " + address);
     mAddress = address;
     mWorkerServiceHandler = workerServiceHandler;
     try {
@@ -52,7 +55,7 @@ public class DataServer implements Runnable {
       LOG.error(e.getMessage() + mAddress, e);
       CommonUtils.runtimeException(e);
     }
-  }
+  } }
 
   private Selector initSelector() throws IOException {
     // Create a new selector

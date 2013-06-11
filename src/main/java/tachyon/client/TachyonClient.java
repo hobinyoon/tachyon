@@ -32,6 +32,8 @@ import tachyon.thrift.SuspectedFileSizeException;
 import tachyon.thrift.TableColumnException;
 import tachyon.thrift.TableDoesNotExistException;
 
+import CodeTracer.CT;
+
 /**
  * Tachyon's user client API. It contains a MasterClient and several WorkerClients
  * depending on how many workers the client program is interacting with.
@@ -88,6 +90,7 @@ public class TachyonClient {
   }
 
   public synchronized void accessLocalFile(int fileId) {
+	  try (CT _ = new CT(fileId)) {
     connect();
     if (mWorkerClient != null && mIsWorkerLocal) {
       try {
@@ -95,12 +98,12 @@ public class TachyonClient {
         return;
       } catch (TException e) {
         mWorkerClient = null;
-        LOG.error(e.getMessage(), e);
+        _.Error(e.getMessage());
       }
     }
 
-    LOG.error("TachyonClient accessLocalFile(" + fileId + ") failed");
-  }
+    _.Error("TachyonClient accessLocalFile(" + fileId + ") failed");
+  } }
 
   public synchronized void addCheckpoint(int fileId) throws IOException {
     connect();
@@ -146,6 +149,7 @@ public class TachyonClient {
   }
 
   public synchronized void cacheFile(int fileId) throws IOException  {
+	  try (CT _ = new CT(fileId)) {
     connect();
     if (!mConnected) {
       return;
@@ -166,7 +170,7 @@ public class TachyonClient {
         throw new IOException(e);
       } 
     }
-  }
+  } }
 
   // Lazy connection
   // TODO This should be removed since the Thrift server has been fixed.
@@ -271,6 +275,7 @@ public class TachyonClient {
   }
 
   public synchronized File createAndGetUserTempFolder() {
+    try (CT _ = new CT()) {
     connect();
 
     if (mUserTempFolder == null) {
@@ -281,15 +286,15 @@ public class TachyonClient {
 
     if (!ret.exists()) {
       if (ret.mkdir()) {
-        LOG.info("Folder " + ret + " was created!");
+        _.Info("Folder " + ret + " was created!");
       } else {
-        LOG.error("Failed to create folder " + ret);
+        _.Error("Failed to create folder " + ret);
         return null;
       }
     }
 
     return ret;
-  }
+  } }
 
   public synchronized String createAndGetUserUnderfsTempFolder() throws IOException {
     connect();
@@ -404,6 +409,7 @@ public class TachyonClient {
 
   private synchronized ClientFileInfo getClientFileInfo(String path, boolean useCachedMetadata)
       throws InvalidPathException { 
+	  try (CT _ = new CT(path, useCachedMetadata)) {
     connect();
     if (!mConnected) {
       return null;
@@ -416,10 +422,10 @@ public class TachyonClient {
     try {
       ret = mMasterClient.user_getClientFileInfoByPath(path);
     } catch (FileDoesNotExistException e) {
-      LOG.info("File " + path + " does not exist.");
+      _.Info("File " + path + " does not exist.");
       return null;
     } catch (TException e) {
-      LOG.error(e.getMessage());
+      _.Error(e.getMessage());
       mConnected = false;
       return null;
     }
@@ -431,10 +437,12 @@ public class TachyonClient {
       mCachedClientFileInfos.remove(path);
     }
 
+    _.Returns(ret);
     return ret;
-  }
+  } }
 
   private synchronized ClientFileInfo getClientFileInfo(int fileId) {
+	  try (CT _ = new CT(fileId)) {
     connect();
     if (!mConnected) {
       return null;
@@ -451,25 +459,29 @@ public class TachyonClient {
       return null;
     }
 
+    _.Returns(ret);
     return ret;
-  }
+  } }
 
   public synchronized List<NetAddress> getFileNetAddresses(int fileId)
       throws IOException {
+	  try (CT _ = new CT(fileId)) {
     connect();
     if (!mConnected) {
       return null;
     }
 
     try {
-      return mMasterClient.user_getFileLocations(fileId);
+      List<NetAddress> lna = mMasterClient.user_getFileLocations(fileId);
+      _.Returns(lna);
+      return lna;
     } catch (FileDoesNotExistException e) {
       throw new IOException(e);
     } catch (TException e) {
       mConnected = false;
       throw new IOException(e);
     }
-  }
+  } }
 
   public synchronized List<List<NetAddress>> getFilesNetAddresses(List<Integer> fileIds) 
       throws IOException {
@@ -533,6 +545,7 @@ public class TachyonClient {
   }
 
   public synchronized int getFileId(String path) throws InvalidPathException {
+	  try (CT _ = new CT(path)) {
     connect();
     if (!mConnected) {
       return -1;
@@ -547,8 +560,9 @@ public class TachyonClient {
       mConnected = false;
       return -1;
     }
+    _.Returns(fileId);
     return fileId;
-  }
+  } }
 
   public synchronized int getNumberOfFiles(String folderPath) 
       throws FileDoesNotExistException, InvalidPathException, TException {
@@ -571,14 +585,17 @@ public class TachyonClient {
   }
 
   public synchronized String getRootFolder() {
+	  try (CT _ = new CT()) {
     connect();
+    _.Returns(mDataFolder);
     return mDataFolder;
-  }
+  } }
 
   public synchronized boolean hasLocalWorker() {
+	  try (CT _ = new CT()) {
     connect();
     return (mIsWorkerLocal && mWorkerClient != null);
-  }
+  } }
 
   public synchronized boolean isConnected() {
     return mConnected;
@@ -623,6 +640,7 @@ public class TachyonClient {
 
   // TODO Make it work for lock/unlock file multiple times.
   public synchronized boolean lockFile(int fileId) {
+	  try (CT _ = new CT(fileId)) {
     connect();
     if (!mConnected || mWorkerClient == null || !mIsWorkerLocal) {
       return false;
@@ -633,8 +651,10 @@ public class TachyonClient {
       LOG.error(e.getMessage());
       return false;
     }
+
+    _.Returns(true);
     return true;
-  }
+  } }
 
   /**
    * Create a directory if it does not exist.
@@ -676,6 +696,7 @@ public class TachyonClient {
   }
 
   public synchronized boolean requestSpace(long requestSpaceBytes) {
+	  try (CT _ = new CT(requestSpaceBytes)) {
     connect();
     if (mWorkerClient == null || !mIsWorkerLocal) {
       return false;
@@ -711,8 +732,9 @@ public class TachyonClient {
 
     mAvailableSpaceBytes -= requestSpaceBytes;
 
+    _.Returns(true);
     return true;
-  }
+  } }
 
   public synchronized boolean unpinFile(int fileId) {
     connect();
@@ -735,6 +757,7 @@ public class TachyonClient {
 
   // TODO Make it work for lock/unlock file multiple times.
   public synchronized boolean unlockFile(int fileId) {
+	  try (CT _ = new CT(fileId)) {
     connect();
     if (!mConnected || mWorkerClient == null || !mIsWorkerLocal) {
       return false;
@@ -745,8 +768,9 @@ public class TachyonClient {
       LOG.error(e.getMessage());
       return false;
     }
+    _.Returns(true);
     return true;
-  }
+  } }
 
   public synchronized void updateRawTableMetadata(int id, ByteBuffer metadata)
       throws TableDoesNotExistException, TException {
@@ -755,11 +779,14 @@ public class TachyonClient {
   }
 
   public synchronized String getUnderfsAddress() throws IOException {
+	  try (CT _ = new CT()) {
     connect();
     try {
-      return mMasterClient.user_getUnderfsAddress();
+      String ufsa = mMasterClient.user_getUnderfsAddress();
+      _.Returns(ufsa);
+      return ufsa;
     } catch (TException e) {
       throw new IOException(e.getMessage());
     }
-  }
+  } }
 }

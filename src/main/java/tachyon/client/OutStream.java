@@ -19,6 +19,8 @@ import tachyon.UnderFileSystem;
 import tachyon.conf.UserConf;
 import tachyon.thrift.ClientFileInfo;
 
+import CodeTracer.CT;
+
 /**
  * <code>OutputStream</code> interface implementation of TachyonFile. It can only be gotten by
  * calling the methods in <code>tachyon.client.TachyonFile</code>, but can not be initialized by
@@ -46,6 +48,7 @@ public class OutStream extends OutputStream {
   private boolean mCancel = false;
 
   OutStream(TachyonFile file, OpType opType) throws IOException {
+    try (CT _ = new CT(file.getPath(), opType)) {
     FILE = file;
     CLIENT = FILE.CLIENT;
     CLIENT_FILE_INFO = FILE.CLIENT_FILE_INFO;
@@ -67,7 +70,7 @@ public class OutStream extends OutputStream {
       mLocalFile = new RandomAccessFile(localFilePath, "rw");
       mLocalFileChannel = mLocalFile.getChannel();
       mSizeBytes = 0;
-      LOG.info("File " + localFilePath + " was created!");
+      _.Info("File " + localFilePath + " was created!");
     }
 
     if (IO_TYPE.isWriteThrough()) {
@@ -75,7 +78,7 @@ public class OutStream extends OutputStream {
       UnderFileSystem underfsClient = UnderFileSystem.getUnderFileSystem(underfsFolder);
       mCheckpointOutputStream = underfsClient.create(underfsFolder + "/" + FID);
     }
-  }
+  } }
 
   // TODO mBuffer.limit() seems wrong here, unit test it to confirm.
   private synchronized void appendCurrentBuffer(int minimalPosition) throws IOException {

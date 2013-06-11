@@ -26,6 +26,8 @@ import tachyon.thrift.SuspectedFileSizeException;
 import tachyon.thrift.TableColumnException;
 import tachyon.thrift.TableDoesNotExistException;
 
+import CodeTracer.CT;
+
 /**
  * The master server client side.
  * 
@@ -40,12 +42,13 @@ public class MasterClient {
   private boolean mIsConnected;
 
   public MasterClient(InetSocketAddress masterAddress) {
+	  try (CT _ = new CT(masterAddress)) {
     mMasterAddress = masterAddress;
     mProtocol = new TBinaryProtocol(new TFramedTransport(
         new TSocket(mMasterAddress.getHostName(), mMasterAddress.getPort())));
     CLIENT = new MasterService.Client(mProtocol);
     mIsConnected = false;
-  }
+  } }
 
   public synchronized void close() {
     mProtocol.getTransport().close();
@@ -58,16 +61,18 @@ public class MasterClient {
   }
 
   public synchronized long getUserId() throws TException {
+	  try (CT _ = new CT()) {
     long ret = CLIENT.user_getUserId();
-    LOG.info("User registered at the master " + mMasterAddress + " got UserId " + ret);
+    _.Info("User registered at the master " + mMasterAddress + " got UserId " + ret);
     return ret;
-  }
+  } }
 
   public synchronized boolean isConnected() {
     return mIsConnected;
   }
 
   public synchronized boolean open() {
+	  try (CT _ = new CT()) {
     if (!mIsConnected) {
       try {
         mProtocol.getTransport().open();
@@ -79,7 +84,7 @@ public class MasterClient {
     }
 
     return mIsConnected;
-  }
+  } }
 
   /**
    * @param workerId if -1, means the checkpoint is added directly by underlayer fs.
@@ -219,9 +224,9 @@ public class MasterClient {
 
   public synchronized long worker_register(NetAddress workerNetAddress, long totalBytes,
       long usedBytes, List<Integer> currentFileList) throws TException {
+    try (CT _ = new CT()) {
     long ret = CLIENT.worker_register(workerNetAddress, totalBytes, usedBytes, currentFileList); 
-    LOG.info("Registered at the master " + mMasterAddress + " from worker " + workerNetAddress +
-        " , got WorkerId " + ret);
+    _.Info("Registered at the master " + mMasterAddress + " from worker " + workerNetAddress + " , got WorkerId " + ret);
     return ret;
-  }
+  } }
 }

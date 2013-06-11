@@ -17,6 +17,8 @@ import tachyon.Constants;
 import tachyon.MasterInfo;
 import tachyon.conf.CommonConf;
 
+import CodeTracer.CT;
+
 /**
  * Class that bootstraps and starts the web server for the web interface.
  */
@@ -61,13 +63,14 @@ public class UIWebServer {
   }
 
   public void startWebServer() {
+		try (CT _ = new CT()) {
     try {
       mServer.start();
-      LOG.info(mServerName + " started @ " + mAddress);
+      _.Info(mServerName + " started @ " + mAddress);
     } catch (Exception e) {
       CommonUtils.runtimeException(e);
     }
-  }
+  } }
 
   public void shutdownWebServer() throws Exception {
     mServer.stop();

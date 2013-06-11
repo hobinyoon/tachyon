@@ -42,6 +42,8 @@ import tachyon.thrift.SuspectedFileSizeException;
 import tachyon.thrift.TableColumnException;
 import tachyon.thrift.TableDoesNotExistException;
 
+import CodeTracer.CT;
+
 /**
  * A global view of filesystem in master.
  */
@@ -183,6 +185,7 @@ public class MasterInfo {
   }
 
   public MasterInfo(InetSocketAddress address) throws IOException {
+		try (CT _ = new CT(address)) {
     MASTER_CONF = MasterConf.get();
 
     mRoot = new InodeFolder("", mInodeCounter.incrementAndGet(), -1);
@@ -206,11 +209,11 @@ public class MasterInfo {
     mHeartbeatThread = new Thread(new HeartbeatThread("Master Heartbeat", 
         new MasterHeartbeatExecutor(), MASTER_CONF.HEARTBEAT_INTERVAL_MS));
     mHeartbeatThread.start();
-  }
+  } }
 
   public boolean addCheckpoint(long workerId, int fileId, long fileSizeBytes,
       String checkpointPath) throws FileDoesNotExistException, SuspectedFileSizeException {
-    LOG.info(CommonUtils.parametersToString(workerId, fileId, fileSizeBytes, checkpointPath));
+		try (CT _ = new CT(workerId, fileId, fileSizeBytes, checkpointPath)) {
 
     if (workerId != -1) {
       WorkerInfo tWorkerInfo = getWorkerInfo(workerId);
@@ -250,7 +253,7 @@ public class MasterInfo {
       }
       return true;
     }
-  }
+  } }
 
   /**
    * 
@@ -265,7 +268,7 @@ public class MasterInfo {
    */
   public void cachedFile(long workerId, long workerUsedBytes, int fileId,
       long fileSizeBytes) throws FileDoesNotExistException, SuspectedFileSizeException {
-    LOG.debug(CommonUtils.parametersToString(workerId, workerUsedBytes, fileId, fileSizeBytes));
+		try (CT _ = new CT(workerId, workerUsedBytes, fileId, fileSizeBytes)) {
 
     WorkerInfo tWorkerInfo = getWorkerInfo(workerId);
     tWorkerInfo.updateFile(true, fileId);
@@ -300,7 +303,7 @@ public class MasterInfo {
       InetSocketAddress address = tWorkerInfo.ADDRESS;
       tFile.addLocation(workerId, new NetAddress(address.getHostName(), address.getPort()));
     }
-  }
+  } }
 
   public int createFile(String path, boolean directory)
       throws FileAlreadyExistException, InvalidPathException {
@@ -309,8 +312,7 @@ public class MasterInfo {
 
   public int createFile(boolean recursive, String path, boolean directory, int columns,
       ByteBuffer metadata) throws FileAlreadyExistException, InvalidPathException {
-    LOG.debug("createFile" + CommonUtils.parametersToString(path));
-
+		try (CT _ = new CT(recursive, path, directory, columns, metadata)) {
     String[] pathNames = getPathNames(path);
 
     synchronized (mRoot) {
@@ -379,15 +381,14 @@ public class MasterInfo {
       mMasterLogWriter.append(ret, false);
       mMasterLogWriter.flush();
 
-      LOG.debug("createFile: File Created: " + ret + " parent: " + inode);
+      _.Debug("createFile: File Created: " + ret + " parent: " + inode);
       return ret.getId();
     }
-  }
+  } }
 
   public int createRawTable(String path, int columns, ByteBuffer metadata)
       throws FileAlreadyExistException, InvalidPathException, TableColumnException {
-    LOG.info("createRawTable" + CommonUtils.parametersToString(path, columns));
-
+		try (CT _ = new CT(path, columns, metadata)) {
     if (columns <= 0 || columns >= Constants.MAX_COLUMNS) {
       throw new TableColumnException("Column " + columns + " should between 0 to " + 
           Constants.MAX_COLUMNS);
@@ -400,10 +401,10 @@ public class MasterInfo {
     }
 
     return id;
-  }
+  } }
 
   public void delete(int id) {
-    LOG.info("delete(" + id + ")");
+		try (CT _ = new CT(id)) {
     // Only remove meta data from master. The data in workers will be evicted since no further
     // application can read them. (Based on LRU) TODO May change it to be active from V0.2. 
     synchronized (mRoot) {
@@ -436,10 +437,10 @@ public class MasterInfo {
       mMasterLogWriter.append(parent, false);
       mMasterLogWriter.flush();
     }
-  }
+  } }
 
   public void delete(String path) throws InvalidPathException, FileDoesNotExistException {
-    LOG.info("delete(" + path + ")");
+		try (CT _ = new CT(path)) {
     synchronized (mRoot) {
       Inode inode = getInode(path);
       if (inode == null) {
@@ -447,7 +448,7 @@ public class MasterInfo {
       }
       delete(inode.getId());
     }
-  }
+  } }
 
   public long getCapacityBytes() {
     long ret = 0;
@@ -495,7 +496,6 @@ public class MasterInfo {
 
   public ClientFileInfo getClientFileInfo(String path)
       throws FileDoesNotExistException, InvalidPathException {
-    LOG.info("getClientFileInfo(" + path + ")");
     synchronized (mRoot) {
       Inode inode = getInode(path);
       if (inode == null) {
@@ -898,13 +898,14 @@ public class MasterInfo {
   }
 
   private void recoveryFromFile(String fileName, String msg) throws IOException {
+		try (CT _ = new CT(fileName, msg)) {
     MasterLogReader reader;
 
     UnderFileSystem ufs = UnderFileSystem.getUnderFileSystem(fileName);
     if (!ufs.exists(fileName)) {
-      LOG.info(msg + fileName + " does not exist.");
+      _.Info(msg + fileName + " does not exist.");
     } else {
-      LOG.info("Reading " + msg + fileName);
+      _.Info("Reading " + msg + fileName);
       reader = new MasterLogReader(fileName);
       while (reader.hasNext()) {
         Pair<LogType, Object> pair = reader.getNextPair();
@@ -918,7 +919,7 @@ public class MasterInfo {
           case InodeFolder:
           case InodeRawTable: {
             Inode inode = (Inode) pair.getSecond();
-            LOG.info("Putting " + inode);
+            _.Info("Putting " + inode);
             if (Math.abs(inode.getId()) > mInodeCounter.get()) {
               mInodeCounter.set(Math.abs(inode.getId()));
             }
@@ -941,19 +942,21 @@ public class MasterInfo {
         }
       }
     }
-  }
+  } }
 
   private void recoveryFromLog() throws IOException {
+		try (CT _ = new CT()) {
     recoveryFromFile(MASTER_CONF.CHECKPOINT_FILE, "Master Checkpoint file ");
     recoveryFromFile(MASTER_CONF.LOG_FILE, "Master Log file ");
-  }
+  } }
 
   public long registerWorker(NetAddress workerNetAddress, long totalBytes,
       long usedBytes, List<Integer> currentFileIds) {
+		try (CT _ = new CT()) {
     long id = 0;
     InetSocketAddress workerAddress =
         new InetSocketAddress(workerNetAddress.mHost, workerNetAddress.mPort);
-    LOG.info("registerWorker(): WorkerNetAddress: " + workerAddress);
+    _.Info("registerWorker(): WorkerNetAddress: " + workerAddress);
 
     synchronized (mWorkers) {
       if (mWorkerAddressToId.containsKey(workerAddress)) {
@@ -974,7 +977,7 @@ public class MasterInfo {
       tWorkerInfo.updateLastUpdatedTimeMs();
       mWorkers.put(id, tWorkerInfo);
       mWorkerAddressToId.put(workerAddress, id);
-      LOG.info("registerWorker(): " + tWorkerInfo);
+      _.Info("registerWorker(): " + tWorkerInfo);
     }
 
     synchronized (mRoot) {
@@ -989,7 +992,7 @@ public class MasterInfo {
     }
 
     return id;
-  }
+  } }
 
   public void renameFile(String srcPath, String dstPath) 
       throws FileAlreadyExistException, FileDoesNotExistException, InvalidPathException {
@@ -1098,7 +1101,8 @@ public class MasterInfo {
   }
 
   private void writeCheckpoint() throws IOException {
-    LOG.info("Write checkpoint on files recoveried from logs. ");
+		try (CT _ = new CT()) {
+    //LOG.info("Write checkpoint on files recoveried from logs. ");
     MasterLogWriter checkpointWriter =
         new MasterLogWriter(MASTER_CONF.CHECKPOINT_FILE + ".tmp");
     Queue<Inode> nodesQueue = new LinkedList<Inode>();
@@ -1133,8 +1137,8 @@ public class MasterInfo {
       ufs = UnderFileSystem.getUnderFileSystem(MASTER_CONF.LOG_FILE);
       ufs.delete(MASTER_CONF.LOG_FILE, false);
     }
-    LOG.info("Files recovery done. Current mInodeCounter: " + mInodeCounter.get());
-  }
+    _.Info("Files recovery done. Current mInodeCounter: " + mInodeCounter.get());
+  } }
 
   @SuppressWarnings("deprecation")
   public void stop() {

@@ -26,6 +26,8 @@ import tachyon.thrift.NetAddress;
 import tachyon.thrift.SuspectedFileSizeException;
 import tachyon.thrift.WorkerService;
 
+import CodeTracer.CT;
+
 /**
  * <code>WorkerServiceHandler</code> handles all the RPC call to the worker.
  */
@@ -61,6 +63,7 @@ public class WorkerServiceHandler implements WorkerService.Iface {
 
   public WorkerServiceHandler(InetSocketAddress masterAddress, InetSocketAddress workerAddress,
       String dataFolder, long spaceLimitBytes) {
+    try (CT _ = new CT()) {
     COMMON_CONF = CommonConf.get();
 
     mMasterAddress = masterAddress;
@@ -97,8 +100,8 @@ public class WorkerServiceHandler implements WorkerService.Iface {
       CommonUtils.runtimeException(e);
     }
 
-    LOG.info("Current Worker Info: " + mWorkerInfo);
-  }
+    _.Info("Current Worker Info: " + mWorkerInfo);
+  } }
 
   @Override
   public void accessFile(int fileId) throws TException {
@@ -213,17 +216,19 @@ public class WorkerServiceHandler implements WorkerService.Iface {
 
   @Override
   public String getUserTempFolder(long userId) throws TException {
+    try (CT _ = new CT(userId)) {
     String ret = mUsers.getUserTempFolder(userId);
-    LOG.info("Return UserTempFolder for " + userId + " : " + ret);
+    _.Returns(ret);
     return ret;
-  }
+  } }
 
   @Override
   public String getUserUnderfsTempFolder(long userId) throws TException {
+    try (CT _ = new CT(userId)) {
     String ret = mUsers.getUserHdfsTempFolder(userId);
-    LOG.info("Return UserHdfsTempFolder for " + userId + " : " + ret);
+    _.Returns(ret);
     return ret;
-  }
+  } }
 
   public Command heartbeat() throws TException {
     ArrayList<Integer> sendRemovedPartitionList = new ArrayList<Integer>();
@@ -236,9 +241,10 @@ public class WorkerServiceHandler implements WorkerService.Iface {
 
   private void initializeWorkerInfo() 
       throws FileDoesNotExistException, SuspectedFileSizeException, TException {
-    LOG.info("Initializing the worker info.");
+      try (CT _ = new CT()) {
+    _.Info("Initializing the worker info.");
     if (!mDataFolder.exists()) {
-      LOG.info("Local folder " + mDataFolder.toString() + " does not exist. Creating a new one.");
+      _.Info("Local folder " + mDataFolder.toString() + " does not exist. Creating a new one.");
 
       mDataFolder.mkdir();
       mUserFolder.mkdir();
@@ -276,7 +282,7 @@ public class WorkerServiceHandler implements WorkerService.Iface {
       }
     }
     mUserFolder.mkdir();
-  }
+  } }
 
   @Override
   public void lockFile(int fileId, long userId) throws TException {
@@ -360,10 +366,11 @@ public class WorkerServiceHandler implements WorkerService.Iface {
 
   @Override
   public boolean requestSpace(long userId, long requestBytes) throws TException {
-    LOG.info("requestSpace(" + userId + ", " + requestBytes + "): Current available: " +
+    try (CT _ = new CT(userId, requestBytes)) {
+    _.Info("requestSpace(" + userId + ", " + requestBytes + "): Current available: " +
         mWorkerInfo.getAvailableBytes() + " requested: " + requestBytes);
     if (mWorkerInfo.getCapacityBytes() < requestBytes) {
-      LOG.info("user_requestSpace(): requested memory size is larger than the total memory on" +
+      _.Info("user_requestSpace(): requested memory size is larger than the total memory on" +
           " the machine.");
       return false;
     }
@@ -377,7 +384,7 @@ public class WorkerServiceHandler implements WorkerService.Iface {
     mUsers.addOwnBytes(userId, requestBytes);
 
     return true;
-  }
+  } }
 
   public void resetMasterClient() {
     MasterClient tMasterClient = new MasterClient(mMasterAddress);

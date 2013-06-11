@@ -27,6 +27,8 @@ import tachyon.thrift.InvalidPathException;
 import tachyon.thrift.NetAddress;
 import tachyon.thrift.SuspectedFileSizeException;
 
+import CodeTracer.CT;
+
 /**
  * An Hadoop FileSystem interface implementation. Any program working with Hadoop HDFS can work
  * with Tachyon transparently by using this class. However, it is not as efficient as using
@@ -206,13 +208,15 @@ public class TachyonFileSystem extends FileSystem {
    * Initialize the class, have a lazy connection with Tachyon through mTC.
    */
   public void initialize(URI uri, Configuration conf) throws IOException {
-    LOG.debug("TachyonFileSystem initialize(" + uri + ", " + conf + "). Connecting TachyonSystem: " +
-        uri.getHost() + ":" + uri.getPort());
+    CT.setLogger(LOG);
+
+    try (CT _ = new CT(uri, conf)) {
+    _.Debug("Connecting TachyonSystem: " + uri.getHost() + ":" + uri.getPort());
     mTachyonClient = TachyonClient.getClient(new InetSocketAddress(uri.getHost(), uri.getPort()));
     mTachyonHeader = "tachyon://" + uri.getHost() + ":" + uri.getPort() + "";
     Utils.HDFS_ADDRESS = mTachyonClient.getUnderfsAddress();
     mUri = URI.create("tachyon://" + uri.getHost() + ":" + uri.getPort());
-  }
+  } }
 
   @Override
   /**

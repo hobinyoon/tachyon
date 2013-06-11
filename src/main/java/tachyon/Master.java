@@ -12,6 +12,8 @@ import tachyon.conf.MasterConf;
 import tachyon.thrift.MasterService;
 import tachyon.web.UIWebServer;
 
+import CodeTracer.CT;
+
 /**
  * Entry point for the Master program.
  */
@@ -62,11 +64,12 @@ public class Master {
   }
 
   public void start() {
+		try (CT _ = new CT()) {
     mWebServer.startWebServer();
-    LOG.info("The master server started @ " + mMasterAddress);
+    _.Info("The master server started @ " + mMasterAddress);
     mServer.serve();
-    LOG.info("The master server ended @ " + mMasterAddress);
-  }
+    _.Info("The master server ended @ " + mMasterAddress);
+  } }
 
   public void stop() throws Exception {
     mWebServer.shutdownWebServer();
@@ -75,6 +78,9 @@ public class Master {
   }
 
   public static void main(String[] args) {
+    CT.setLogger(LOG);
+
+		try (CT _ = new CT()) {
     if (args.length != 0) {
       LOG.info("java -cp target/tachyon-" + Version.VERSION + "-jar-with-dependencies.jar " +
           "tachyon.Master");
@@ -85,7 +91,7 @@ public class Master {
         mConf.WEB_PORT, mConf.SELECTOR_THREADS, mConf.QUEUE_SIZE_PER_SELECTOR, 
         mConf.SERVER_THREADS);
     master.start();
-  }
+  } }
   /**
    * Get MasterInfo instance for Unit Test
    * @return MasterInfo of the Master  

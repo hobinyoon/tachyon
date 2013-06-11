@@ -25,6 +25,8 @@ import tachyon.thrift.FileDoesNotExistException;
 import tachyon.thrift.NetAddress;
 import tachyon.thrift.SuspectedFileSizeException;
 
+import CodeTracer.CT;
+
 /**
  * Tachyon File.
  */
@@ -130,6 +132,7 @@ public class TachyonFile {
   }
 
   private ByteBuffer readByteBufferFromLocal() {
+    try (CT _ = new CT()) {
     if (CLIENT.getRootFolder() != null) {
       String localFileName = CLIENT.getRootFolder() + Constants.PATH_SEPARATOR + FID;
       try {
@@ -139,24 +142,26 @@ public class TachyonFile {
         localFile.close();
         ret.order(ByteOrder.nativeOrder());
         CLIENT.accessLocalFile(FID);
+        _.Returns(ret);
         return ret;
       } catch (FileNotFoundException e) {
-        LOG.info(localFileName + " is not on local disk.");
+        _.Info(localFileName + " is not on local disk.");
       } catch (IOException e) {
-        LOG.info("Failed to read local file " + localFileName + " with " + e.getMessage());
+        _.Info("Failed to read local file " + localFileName + " with " + e.getMessage());
       } 
     }
 
     return null;
-  }
+  } }
 
   private ByteBuffer readByteBufferFromRemote() {
+    try (CT _ = new CT()) {
     ByteBuffer ret = null;
 
-    LOG.info("Try to find and read from remote workers.");
+    _.Info("Try to find and read from remote workers.");
     try {
       List<NetAddress> fileLocations = CLIENT.getFileNetAddresses(FID);
-      LOG.info("readByteBufferFromRemote() " + fileLocations);
+      _.Info("readByteBufferFromRemote() " + fileLocations);
 
       for (int k = 0; k < fileLocations.size(); k ++) {
         String host = fileLocations.get(k).mHost;
@@ -169,9 +174,9 @@ public class TachyonFile {
         if (host.equals(InetAddress.getLocalHost().getHostName()) 
             || host.equals(InetAddress.getLocalHost().getHostAddress())) {
           String localFileName = CLIENT.getRootFolder() + "/" + FID;
-          LOG.warn("Master thinks the local machine has data " + localFileName + "! But not!");
+          _.Warn("Master thinks the local machine has data " + localFileName + "! But not!");
         } else {
-          LOG.info(host + ":" + (port + 1) +
+          _.Info(host + ":" + (port + 1) +
               " current host is " + InetAddress.getLocalHost().getHostName() + " " +
               InetAddress.getLocalHost().getHostAddress());
 
@@ -181,13 +186,13 @@ public class TachyonFile {
               break;
             }
           } catch (IOException e) {
-            LOG.error(e.getMessage());
+            _.Error(e.getMessage());
             ret = null;
           }
         }
       }
     } catch (IOException e) {
-      LOG.error("Failed to get read data from remote " + e.getMessage());
+      _.Error("Failed to get read data from remote " + e.getMessage());
     }
 
     if (ret != null) {
@@ -195,7 +200,7 @@ public class TachyonFile {
     }
 
     return ret;
-  }
+  } }
 
   public boolean recacheData() {
     boolean succeed = true;
