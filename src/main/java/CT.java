@@ -3,10 +3,10 @@ package CodeTracer;
 import java.lang.management.ManagementFactory;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ConcurrentHashMap;
-import org.apache.log4j.Logger;
-import org.apache.commons.lang.StringUtils;
 import java.util.Collections;
 import java.util.List;
+import org.apache.log4j.Logger;
+import org.apache.commons.lang.StringUtils;
 
 
 public class CT implements AutoCloseable
@@ -38,6 +38,9 @@ public class CT implements AutoCloseable
 
     for (Object o: objs)
     {
+      if (o == null)
+        o = "null";
+
       if (sb == null)
         sb = new StringBuilder();
 
@@ -52,23 +55,21 @@ public class CT implements AutoCloseable
         sb.append("]");
       }
       else
-      {
-        sb.append( (o == null) ? "null" : o.toString());
-      }
+        sb.append(o);
     }
 
     if (sb != null)
       _input = sb.toString();
 
 		StackTraceElement ste = Thread.currentThread().getStackTrace()[2];
-		_Info("-> " + ste, 1);
+		_Info(1, ste);
 	}
 
 	@Override
 	public void close()
   {
 		StackTraceElement ste = Thread.currentThread().getStackTrace()[2];
-		_Info("<- " + ste, -1);
+		_Info(-1, ste);
 	}
 
   private static String _Logstr(String s)
@@ -143,10 +144,19 @@ public class CT implements AutoCloseable
 
   public void Returns(Object... objs)
   {
+    if (objs == null)
+    {
+      _returns = "null";
+      return;
+    }
+
     StringBuilder sb = null;
 
     for (Object o: objs)
     {
+      if (o == null)
+        o = "null";
+
       if (sb == null)
         sb = new StringBuilder();
 
@@ -162,21 +172,25 @@ public class CT implements AutoCloseable
         sb.append("]");
       }
       else
-      {
-        sb.append( (o == null) ? "null" : o.toString());
-      }
+        sb.append(o);
     }
 
     if (sb != null)
       _returns = sb.toString();
   }
 
-	private void _Info(String s, int indinc)
+	private void _Info(int indinc, StackTraceElement ste)
 	{
 		String pid = ManagementFactory.getRuntimeMXBean().getName().split("@")[0];
 		Thread t = Thread.currentThread();
 		long tid = t.getId();
 		String pidtid = pid + " " + tid;
+
+    StringBuilder logstr = new StringBuilder();
+    logstr.append(pidtid);
+    logstr.append(" ");
+    logstr.append(t.getName());
+    logstr.append(" | ");
 
 		int ind = 0;
 		if (_ind_map.containsKey(pidtid))
@@ -188,22 +202,47 @@ public class CT implements AutoCloseable
 			_ind_map.put(pidtid, ind);
 		}
 
-    String logstr = pidtid + " " + t.getName() + " | ";
-		//System.err.print(pidtid + " " + t.getName() + " | ");
-
 		for (int i = 0; i < ind; ++ i)
-      logstr += "  ";
-			//System.err.print("  ");
-		//System.err.println(s);
-    logstr += s;
-    if (indinc == 1 && _input != null)
-      logstr += (" in " + _input);
-    else if (indinc == -1 && _returns != null)
-      logstr += (" ret " + _returns);
+      logstr.append("  ");
+
+    if (indinc == 1)
+    {
+      logstr.append("-> ");
+      logstr.append(ste.getClassName());
+      logstr.append(".");
+      logstr.append(ste.getMethodName());
+      logstr.append("(");
+      if (_input != null)
+        logstr.append(_input);
+      logstr.append(") [");
+      logstr.append(ste.getFileName());
+      logstr.append(":");
+      logstr.append(ste.getLineNumber());
+      logstr.append("]");
+    }
+    else if (indinc == -1)
+    {
+      logstr.append("<- ");
+      logstr.append(ste.getClassName());
+      logstr.append(".");
+      logstr.append(ste.getMethodName());
+      logstr.append("()");
+      if (_returns != null)
+      {
+        logstr.append(" ret ");
+        logstr.append(_returns);
+      }
+      logstr.append(" [");
+      logstr.append(ste.getFileName());
+      logstr.append(":");
+      logstr.append(ste.getLineNumber());
+      logstr.append("]");
+    }
+      
     if (_logger != null)
-      _logger.info(logstr);
+      _logger.info(logstr.toString());
     else
-      System.err.println(logstr);
+      System.err.println(logstr.toString());
 
 		if (indinc == 1)
 		{
