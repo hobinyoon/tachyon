@@ -158,6 +158,7 @@ public class WorkerServiceHandler implements WorkerService.Iface {
     if (!srcFile.exists()) {
       throw new FileDoesNotExistException("File " + srcFile + " does not exist.");
     }
+    _.Info("srcFile=" + srcFile.getPath() + " destFile=" + dstFile.getPath());
     if (!srcFile.renameTo(dstFile)) {
       throw new FileDoesNotExistException("Failed to rename file from " + srcFile.getPath() +
           " to " + dstFile.getPath());
