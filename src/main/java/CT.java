@@ -24,7 +24,8 @@ public class CT implements AutoCloseable
       _logger = logger;
     else
     {
-      Info(_logger, "_logger was already set");
+      _logger = logger;
+      Info(_logger, "_logger was already set. updating.");
       StackTraceElement[] ste = Thread.currentThread().getStackTrace();
       for (int i = 2; i < ste.length; i ++)
         Info(_logger, " " + ste[i]);
@@ -52,7 +53,7 @@ public class CT implements AutoCloseable
       }
       else
       {
-        sb.append(o.toString());
+        sb.append( (o == null) ? "null" : o.toString());
       }
     }
 
@@ -95,34 +96,49 @@ public class CT implements AutoCloseable
 
 	public void Info(String s)
 	{
-    _logger.info(_Logstr(s));
+    if (_logger != null)
+      _logger.info(_Logstr(s));
+    else
+      System.err.println(_Logstr(s));
 	}
 
 	public void InfoCallStack()
 	{
     StackTraceElement[] ste = Thread.currentThread().getStackTrace();
     for (int i = 2; i < ste.length; i ++)
-      _logger.info(" " + ste[i]);
+      Info(" " + ste[i]);
 	}
 
 	public void Warn(String s)
 	{
-    _logger.warn(_Logstr(s));
-	}
+    if (_logger != null)
+      _logger.warn(_Logstr(s));
+    else
+      System.err.println(_Logstr(s));
+  }
 
 	public void Error(String s)
 	{
-    _logger.error(_Logstr(s));
+    if (_logger != null)
+      _logger.error(_Logstr(s));
+    else
+      System.err.println(_Logstr(s));
 	}
 
 	public void Debug(String s)
 	{
-    _logger.debug(_Logstr(s));
+    if (_logger != null)
+      _logger.debug(_Logstr(s));
+    else
+      System.err.println(_Logstr(s));
 	}
 
 	private static void Info(Logger logger, String s)
 	{
-    logger.info(_Logstr(s));
+    if (logger != null)
+      logger.info(_Logstr(s));
+    else
+      System.err.println(_Logstr(s));
 	}
 
   public void Returns(Object... objs)
@@ -147,7 +163,7 @@ public class CT implements AutoCloseable
       }
       else
       {
-        sb.append(o.toString());
+        sb.append( (o == null) ? "null" : o.toString());
       }
     }
 
@@ -157,9 +173,6 @@ public class CT implements AutoCloseable
 
 	private void _Info(String s, int indinc)
 	{
-    if (_logger == null)
-      _logger.info("raise a NullPointerException!");
-
 		String pid = ManagementFactory.getRuntimeMXBean().getName().split("@")[0];
 		Thread t = Thread.currentThread();
 		long tid = t.getId();
@@ -176,18 +189,21 @@ public class CT implements AutoCloseable
 		}
 
     String logstr = pidtid + " " + t.getName() + " | ";
-		//System.out.print(pidtid + " " + t.getName() + " | ");
+		//System.err.print(pidtid + " " + t.getName() + " | ");
 
 		for (int i = 0; i < ind; ++ i)
       logstr += "  ";
-			//System.out.print("  ");
-		//System.out.println(s);
+			//System.err.print("  ");
+		//System.err.println(s);
     logstr += s;
     if (indinc == 1 && _input != null)
       logstr += (" in " + _input);
     else if (indinc == -1 && _returns != null)
       logstr += (" ret " + _returns);
-    _logger.info(logstr);
+    if (_logger != null)
+      _logger.info(logstr);
+    else
+      System.err.println(logstr);
 
 		if (indinc == 1)
 		{
