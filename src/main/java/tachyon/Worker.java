@@ -169,7 +169,7 @@ public class Worker implements Runnable {
 
   public static void main(String[] args) throws UnknownHostException {
     CT.setLogger(LOG);
-    try (CT _ = new CT()) {
+
     if (args.length != 1) {
       LOG.info("Usage: java -cp target/tachyon-" + Version.VERSION + "-jar-with-dependencies.jar " +
           "tachyon.Worker <WorkerHost>");
@@ -181,7 +181,7 @@ public class Worker implements Runnable {
         wConf.SELECTOR_THREADS, wConf.QUEUE_SIZE_PER_SELECTOR,
         wConf.SERVER_THREADS, wConf.DATA_FOLDER, wConf.MEMORY_SIZE);
     worker.start();
-  } }
+  }
 
   /**
    * Get the worker server handler class. This is for unit test only. 
