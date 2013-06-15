@@ -1,0 +1,290 @@
+0614-111548.515          TM 14988 1 main | -> tachyon.Master.main(Master.java:86)
+0614-111548.519          TM 14988 1 main |    _logger was already set. updating.
+0614-111548.519          TM 14988 1 main |     tachyon.Master.createMaster(Master.java:63)
+0614-111548.519          TM 14988 1 main |     tachyon.Master.main(Master.java:93)
+0614-111548.519          TM 14988 1 main |   -> tachyon.Master.createMaster(Master.java:65)
+0614-111548.529          TM 14988 1 main |     -> tachyon.MasterInfo.<init>(MasterInfo.java:188) in localhost/127.0.0.1:19998
+0614-111548.531          TM 14988 1 main |       -> tachyon.MasterInfo.recoveryFromLog(MasterInfo.java:948)
+0614-111548.531          TM 14988 1 main |         -> tachyon.MasterInfo.recoveryFromFile(MasterInfo.java:901) in hdfs://localhost:9000/tachyon/tachyon_checkpoint.data, Master Checkpoint file 
+0614-111549.027          TM 14988 1 main |            Reading Master Checkpoint file hdfs://localhost:9000/tachyon/tachyon_checkpoint.data
+0614-111549.136          TM 14988 1 main |            Putting InodeFolder(INode(ID:1, NAME:, PARENT_ID:-1, CREATION_TIME_MS:1371173302690),[2])
+0614-111549.137          TM 14988 1 main |            Putting InodeFolder(INode(ID:2, NAME:user, PARENT_ID:1, CREATION_TIME_MS:1371232082005),[3])
+0614-111549.137          TM 14988 1 main |            Putting InodeFolder(INode(ID:3, NAME:hobin, PARENT_ID:2, CREATION_TIME_MS:1371232082022),[4])
+0614-111549.137          TM 14988 1 main |            Putting InodeFolder(INode(ID:4, NAME:input, PARENT_ID:3, CREATION_TIME_MS:1371232082025),[5])
+0614-111549.139          TM 14988 1 main |            Putting InodeFile(INode(ID:5, NAME:log4j.properties, PARENT_ID:4, CREATION_TIME_MS:1371232082026), LENGTH:4654, CheckpointPath:hdfs://localhost:9000/user/hobin/input/log4j.properties)
+0614-111549.140          TM Buffer underflow.
+0614-111549.140          TM 14988 1 main |         <- tachyon.MasterInfo.recoveryFromFile(MasterInfo.java:945)
+0614-111549.141          TM 14988 1 main |         -> tachyon.MasterInfo.recoveryFromFile(MasterInfo.java:901) in hdfs://localhost:9000/tachyon/tachyon_log.data, Master Log file 
+0614-111549.157          TM 14988 1 main |            Reading Master Log file hdfs://localhost:9000/tachyon/tachyon_log.data
+0614-111549.175          TM Buffer underflow.
+0614-111549.175          TM 14988 1 main |         <- tachyon.MasterInfo.recoveryFromFile(MasterInfo.java:945)
+0614-111549.175          TM 14988 1 main |       <- tachyon.MasterInfo.recoveryFromLog(MasterInfo.java:951)
+0614-111549.175          TM 14988 1 main |       -> tachyon.MasterInfo.writeCheckpoint(MasterInfo.java:1104)
+0614-111549.294          TM 14988 1 main |          Files recovery done. Current mInodeCounter: 5
+0614-111549.294          TM 14988 1 main |       <- tachyon.MasterInfo.writeCheckpoint(MasterInfo.java:1141)
+0614-111549.330          TM 14988 1 main |     <- tachyon.MasterInfo.<init>(MasterInfo.java:212)
+0614-111549.439          TM 14988 1 main |     -> tachyon.MasterServiceHandler.<init>(MasterServiceHandler.java:40) in tachyon.MasterInfo@513ba552
+0614-111549.439          TM 14988 1 main |     <- tachyon.MasterServiceHandler.<init>(MasterServiceHandler.java:42)
+0614-111549.473          TM 14988 1 main |   <- tachyon.Master.createMaster(Master.java:67)
+0614-111549.474          TM 14988 1 main |   -> tachyon.Master.start(Master.java:70)
+0614-111549.474          TM 14988 1 main |     -> tachyon.web.UIWebServer.startWebServer(UIWebServer.java:66)
+0614-111549.474          TM jetty-7.x.y-SNAPSHOT
+0614-111549.618          TM started o.e.j.w.WebAppContext{/,file:/home/hobin/work/tachyon/src/main/java/tachyon/web/resources/},/home/hobin/work/tachyon/bin/../src/main/java/tachyon/web/resources
+0614-111549.659          TM Started SelectChannelConnector@localhost:19999 STARTING
+0614-111549.659          TM 14988 1 main |        Tachyon Master Server started @ localhost/127.0.0.1:19999
+0614-111549.659          TM 14988 1 main |     <- tachyon.web.UIWebServer.startWebServer(UIWebServer.java:73)
+0614-111549.660          TM 14988 1 main |      The master server started @ localhost/127.0.0.1:19998
+
+0614-111549.609                    TW 15015 1 main | -> tachyon.Worker.main(Worker.java:172)
+0614-111549.614                    TW 15015 1 main |   -> tachyon.Worker.<init>(Worker.java:41)
+0614-111549.621                    TW 15015 1 main |     -> tachyon.WorkerServiceHandler.<init>(WorkerServiceHandler.java:66)
+0614-111549.626                    TW 15015 1 main |       -> tachyon.MasterClient.<init>(MasterClient.java:45) in localhost/127.0.0.1:19998
+0614-111549.648                    TW 15015 1 main |       <- tachyon.MasterClient.<init>(MasterClient.java:51)
+0614-111549.649                    TW 15015 1 main |       -> tachyon.MasterClient.open(MasterClient.java:75)
+0614-111549.653                    TW 15015 1 main |       <- tachyon.MasterClient.open(MasterClient.java:87)
+0614-111549.665                    TW 15015 1 main |       -> tachyon.MasterClient.worker_register(MasterClient.java:227)
+
+
+0614-111549.681          TM 14988 25 pool-1-thread-1 | -> tachyon.MasterServiceHandler.worker_register(MasterServiceHandler.java:267) in NetAddress(mHost:tach-retina, mPort:29998), 1073741824, 0, []
+0614-111549.681          TM 14988 25 pool-1-thread-1 |   -> tachyon.MasterInfo.registerWorker(MasterInfo.java:955)
+0614-111549.682          TM 14988 25 pool-1-thread-1 |      registerWorker(): WorkerNetAddress: tach-retina/127.0.1.1:29998
+0614-111549.683          TM 14988 25 pool-1-thread-1 |      registerWorker(): WorkerInfo( ID: 1371233000001, ADDRESS: tach-retina/127.0.1.1:29998, TOTAL_BYTES: 1073741824, mUsedBytes: 0, mAvailableBytes: 1073741824, mLastUpdatedTimeMs: 1371233749683, mFiles: [ ] )
+0614-111549.683          TM 14988 25 pool-1-thread-1 |   <- tachyon.MasterInfo.registerWorker(MasterInfo.java:995)
+0614-111549.683          TM 14988 25 pool-1-thread-1 | <- tachyon.MasterServiceHandler.worker_register(MasterServiceHandler.java:269)
+
+0614-111549.684                    TW 15015 1 main |          Registered at the master localhost/127.0.0.1:19998 from worker NetAddress(mHost:tach-retina, mPort:29998) , got WorkerId 1371233000001
+0614-111549.685                    TW 15015 1 main |       <- tachyon.MasterClient.worker_register(MasterClient.java:231)
+0614-111550.217                    TW 15015 1 main |       -> tachyon.WorkerServiceHandler.initializeWorkerInfo(WorkerServiceHandler.java:244)
+0614-111550.218                    TW 15015 1 main |          Initializing the worker info.
+0614-111550.218                    TW 15015 1 main |          Local folder /mnt/ramdisk/tachyonworker does not exist. Creating a new one.
+0614-111550.218                    TW 15015 1 main |       <- tachyon.WorkerServiceHandler.initializeWorkerInfo(WorkerServiceHandler.java:285)
+0614-111550.219                    TW 15015 1 main |        Current Worker Info: WorkerInfo( ID: 1371233000001, ADDRESS: tach-retina/127.0.1.1:29998, TOTAL_BYTES: 1073741824, mUsedBytes: 0, mAvailableBytes: 1073741824, mLastUpdatedTimeMs: 1371233749686, mFiles: [ ] )
+0614-111550.219                    TW 15015 1 main |     <- tachyon.WorkerServiceHandler.<init>(WorkerServiceHandler.java:104)
+0614-111550.220                    TW 15015 1 main |     -> tachyon.DataServer.<init>(DataServer.java:48)
+0614-111550.221                    TW 15015 1 main |        Starting DataServer @ tach-retina/127.0.1.1:29999
+0614-111550.226                    TW 15015 1 main |     <- tachyon.DataServer.<init>(DataServer.java:58)
+0614-111550.227                    TW 15015 1 main |      The worker server tries to start @ tach-retina/127.0.1.1:29998
+0614-111550.249                    TW 15015 1 main |   <- tachyon.Worker.<init>(Worker.java:75)
+0614-111550.249                    TW 15015 1 main |   -> tachyon.Worker.start(Worker.java:150)
+0614-111550.250                    TW 15015 1 main |      The worker server started @ tach-retina/127.0.1.1:29998
+
+Welcome to
+      ____              __  
+     / __/__  ___ _____/ /__
+    _\ \/ _ \/ _ `/ __/  '_/
+   /___/ .__/\_,_/_/ /_/\_\   version 0.7.0
+      /_/                  
+
+Using Scala version 2.9.3 (OpenJDK 64-Bit Server VM, Java 1.7.0_21)
+Initializing interpreter...
+0614-111553.347 SS Your hostname, tach-retina resolves to a loopback address: 127.0.1.1; using 192.168.56.10 instead (on interface eth1)
+0614-111553.348 SS Set SPARK_LOCAL_IP if you need to bind to another address
+Creating SparkContext...
+0614-111557.484 SS Slf4jEventHandler started
+0614-111557.674 SS Registered BlockManagerMaster Actor
+0614-111557.699 SS MemoryStore started with capacity 323.9 MB.
+0614-111557.703 SS Created local directory at /tmp/spark-local-20130614111557-17a6
+0614-111557.726 SS Bound socket to port 48705 with id = ConnectionManagerId(tach-retina,48705)
+0614-111557.742 SS Trying to register BlockManager
+0614-111557.746 SS Registering block manager tach-retina:48705 with 323.9 MB RAM
+0614-111557.747 SS Registered BlockManager
+0614-111557.773 SS Broadcast server started at http://192.168.56.10:43393
+0614-111557.782 SS Registered MapOutputTrackerActor actor
+0614-111557.788 SS HTTP File server directory is /tmp/spark-9f8c7731-7b18-43c1-973a-1744fcf8abc7
+0614-111558.070 SS IoWorker thread 'spray-io-worker-0' started
+0614-111558.327 SS akka://spark/user/BlockManagerHTTPServer started on /0.0.0.0:57988
+0614-111558.330 SS Started BlockManager web UI at http://tach-retina:57988
+Spark context available as sc.
+Type in expressions to have them evaluated.
+Type :help for more information.
+
+scala> val s = sc.textFile("tachyon://localhost:19998/user/hobin/input/log4j.properties")
+0614-111606.579 SS ensureFreeSpace(57390) called with curMem=0, maxMem=339585269
+0614-111606.581 SS Block broadcast_0 stored as values to memory (estimated size 56.0 KB, free 323.8 MB)
+s: spark.RDD[String] = MappedRDD[1] at textFile at <console>:12
+
+scala> s.count()
+0614-111609.646 SS Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+0614-111609.646 SS Snappy native library not loaded
+0614-111609.657 SS 15406 63 Thread-37 | -> tachyon.hadoop.TachyonFileSystem.initialize(TachyonFileSystem.java:213) in tachyon://localhost:19998/user/hobin/input/log4j.properties, Configuration: core-default.xml, core-site.xml, mapred-default.xml, mapred-site.xml
+0614-111609.662 SS 15406 63 Thread-37 |   -> tachyon.client.TachyonClient.getUnderfsAddress(TachyonClient.java:782)
+0614-111609.662 SS Trying to connect master @ localhost/127.0.0.1:19998
+0614-111609.666 SS 15406 63 Thread-37 |     -> tachyon.MasterClient.<init>(MasterClient.java:45) in localhost/127.0.0.1:19998
+0614-111609.673 SS 15406 63 Thread-37 |     <- tachyon.MasterClient.<init>(MasterClient.java:51)
+0614-111609.673 SS 15406 63 Thread-37 |     -> tachyon.MasterClient.open(MasterClient.java:75)
+0614-111609.678 SS 15406 63 Thread-37 |     <- tachyon.MasterClient.open(MasterClient.java:87)
+0614-111609.678 SS 15406 63 Thread-37 |     -> tachyon.MasterClient.getUserId(MasterClient.java:64)
+
+0614-111609.690          TM 14988 45 pool-1-thread-21 | -> tachyon.MasterServiceHandler.user_getUserId(MasterServiceHandler.java:173)
+0614-111609.690          TM 14988 45 pool-1-thread-21 | <- tachyon.MasterServiceHandler.user_getUserId(MasterServiceHandler.java:177) ret 1
+
+0614-111609.691 SS 15406 63 Thread-37 |        User registered at the master localhost/127.0.0.1:19998 got UserId 1
+0614-111609.691 SS 15406 63 Thread-37 |     <- tachyon.MasterClient.getUserId(MasterClient.java:68)
+0614-111609.692 SS Trying to get local worker host : tach-retina.corp.adobe.com
+
+0614-111609.698          TM 14988 46 pool-1-thread-22 | -> tachyon.MasterServiceHandler.user_getWorker(MasterServiceHandler.java:93) in false, tach-retina.corp.adobe.com
+0614-111609.698          TM 14988 46 pool-1-thread-22 | <- tachyon.MasterServiceHandler.user_getWorker(MasterServiceHandler.java:97) ret NetAddress(mHost:tach-retina, mPort:29998)
+
+0614-111609.700 SS Connecting local worker @ tach-retina/127.0.1.1:29998
+
+0614-111609.715                    TW 15015 14 pool-1-thread-2 | -> tachyon.WorkerServiceHandler.getUserTempFolder(WorkerServiceHandler.java:219) in 1
+0614-111609.715                    TW 15015 14 pool-1-thread-2 | <- tachyon.WorkerServiceHandler.getUserTempFolder(WorkerServiceHandler.java:223) ret /mnt/ramdisk/tachyonworker/users/1
+0614-111609.721                    TW 15015 15 pool-1-thread-3 | -> tachyon.WorkerServiceHandler.getUserUnderfsTempFolder(WorkerServiceHandler.java:227) in 1
+0614-111609.721                    TW 15015 15 pool-1-thread-3 | <- tachyon.WorkerServiceHandler.getUserUnderfsTempFolder(WorkerServiceHandler.java:231) ret hdfs://localhost:9000/tachyon/workers/1371233000001/1
+
+0614-111609.729          TM 14988 47 pool-1-thread-23 | -> tachyon.MasterServiceHandler.user_getUnderfsAddress(MasterServiceHandler.java:188)
+0614-111609.730          TM 14988 47 pool-1-thread-23 | <- tachyon.MasterServiceHandler.user_getUnderfsAddress(MasterServiceHandler.java:192) ret hdfs://localhost:9000
+
+0614-111609.730 SS 15406 63 Thread-37 |   <- tachyon.client.TachyonClient.getUnderfsAddress(TachyonClient.java:791) ret hdfs://localhost:9000
+0614-111609.731 SS 15406 63 Thread-37 | <- tachyon.hadoop.TachyonFileSystem.initialize(TachyonFileSystem.java:219)
+0614-111609.883 SS 15406 63 Thread-37 | -> tachyon.client.TachyonClient.getFileId(TachyonClient.java:548) in /user/hobin/input/log4j.properties
+
+0614-111609.889          TM 14988 48 pool-1-thread-24 | -> tachyon.MasterServiceHandler.user_getFileId(MasterServiceHandler.java:145) in /user/hobin/input/log4j.properties
+0614-111609.890          TM 14988 48 pool-1-thread-24 | <- tachyon.MasterServiceHandler.user_getFileId(MasterServiceHandler.java:149) ret 5
+
+0614-111609.891 SS 15406 63 Thread-37 | <- tachyon.client.TachyonClient.getFileId(TachyonClient.java:565) ret 5
+0614-111609.891 SS Total input paths to process : 1
+0614-111609.895 SS 15406 63 Thread-37 | -> tachyon.client.TachyonClient.getFileId(TachyonClient.java:548) in /user/hobin/input/log4j.properties
+
+0614-111609.896          TM 14988 49 pool-1-thread-25 | -> tachyon.MasterServiceHandler.user_getFileId(MasterServiceHandler.java:145) in /user/hobin/input/log4j.properties
+0614-111609.897          TM 14988 49 pool-1-thread-25 | <- tachyon.MasterServiceHandler.user_getFileId(MasterServiceHandler.java:149) ret 5
+
+0614-111609.897 SS 15406 63 Thread-37 | <- tachyon.client.TachyonClient.getFileId(TachyonClient.java:565) ret 5
+0614-111609.898 SS 15406 63 Thread-37 | -> tachyon.client.TachyonClient.getFileNetAddresses(TachyonClient.java:468) in 5
+
+0614-111609.904          TM 14988 50 pool-1-thread-26 | -> tachyon.MasterServiceHandler.user_getFileLocationsById(MasterServiceHandler.java:118) in 5
+0614-111609.926          TM 14988 50 pool-1-thread-26 | <- tachyon.MasterServiceHandler.user_getFileLocationsById(MasterServiceHandler.java:128) ret [NetAddress(mHost:tach-retina.corp.adobe.com, mPort:-1)]
+
+0614-111609.929 SS 15406 63 Thread-37 | <- tachyon.client.TachyonClient.getFileNetAddresses(TachyonClient.java:484) ret [NetAddress(mHost:tach-retina.corp.adobe.com, mPort:-1)]
+0614-111609.936 SS Starting job: count at <console>:15
+0614-111609.943 SS Got job 0 (count at <console>:15) with 1 output partitions (allowLocal=false)
+0614-111609.944 SS Final stage: Stage 0 (textFile at <console>:12)
+0614-111609.944 SS Parents of final stage: List()
+0614-111609.949 SS Missing parents: List()
+0614-111609.951 SS Submitting Stage 0 (MappedRDD[1] at textFile at <console>:12), which has no missing parents
+0614-111609.957 SS Submitting 1 missing tasks from Stage 0 (MappedRDD[1] at textFile at <console>:12)
+0614-111609.961 SS Running ResultTask(0, 0)
+0614-111610.010 SS Size of task 0 is 1452 bytes
+0614-111610.050 SS 15406 66 pool-1-thread-1 | -> tachyon.client.TachyonClient.getFileId(TachyonClient.java:548) in /user/hobin/input/log4j.properties
+
+0614-111610.052          TM 14988 52 pool-1-thread-27 | -> tachyon.MasterServiceHandler.user_getFileId(MasterServiceHandler.java:145) in /user/hobin/input/log4j.properties
+0614-111610.052          TM 14988 52 pool-1-thread-27 | <- tachyon.MasterServiceHandler.user_getFileId(MasterServiceHandler.java:149) ret 5
+
+0614-111610.053 SS 15406 66 pool-1-thread-1 | <- tachyon.client.TachyonClient.getFileId(TachyonClient.java:565) ret 5
+0614-111610.055 SS 15406 66 pool-1-thread-1 | -> tachyon.client.TachyonClient.getClientFileInfo(TachyonClient.java:445) in 5
+
+0614-111610.062          TM 14988 53 pool-1-thread-28 | -> tachyon.MasterServiceHandler.user_getClientFileInfoById(MasterServiceHandler.java:102) in 5
+0614-111610.064          TM 14988 53 pool-1-thread-28 | <- tachyon.MasterServiceHandler.user_getClientFileInfoById(MasterServiceHandler.java:106) ret ClientFileInfo(id:5, name:log4j.properties, path:/user/hobin/input/log4j.properties, checkpointPath:hdfs://localhost:9000/user/hobin/input/log4j.properties, sizeBytes:4654, creationTimeMs:1371232082026, ready:true, folder:false, inMemory:false, needPin:false, needCache:true)
+
+0614-111610.066 SS 15406 66 pool-1-thread-1 | <- tachyon.client.TachyonClient.getClientFileInfo(TachyonClient.java:464) ret ClientFileInfo(id:5, name:log4j.properties, path:/user/hobin/input/log4j.properties, checkpointPath:hdfs://localhost:9000/user/hobin/input/log4j.properties, sizeBytes:4654, creationTimeMs:1371232082026, ready:true, folder:false, inMemory:false, needPin:false, needCache:true)
+0614-111610.069 SS 15406 66 pool-1-thread-1 | -> tachyon.client.TachyonClient.lockFile(TachyonClient.java:643) in 5
+0614-111610.076 SS 15406 66 pool-1-thread-1 | <- tachyon.client.TachyonClient.lockFile(TachyonClient.java:657) ret true
+0614-111610.076 SS 15406 66 pool-1-thread-1 | -> tachyon.client.TachyonFile.readByteBufferFromLocal(TachyonFile.java:135)
+0614-111610.076 SS 15406 66 pool-1-thread-1 |   -> tachyon.client.TachyonClient.getRootFolder(TachyonClient.java:588)
+0614-111610.076 SS 15406 66 pool-1-thread-1 |   <- tachyon.client.TachyonClient.getRootFolder(TachyonClient.java:592) ret /mnt/ramdisk/tachyonworker
+0614-111610.077 SS 15406 66 pool-1-thread-1 |   -> tachyon.client.TachyonClient.getRootFolder(TachyonClient.java:588)
+0614-111610.077 SS 15406 66 pool-1-thread-1 |   <- tachyon.client.TachyonClient.getRootFolder(TachyonClient.java:592) ret /mnt/ramdisk/tachyonworker
+0614-111610.078 SS 15406 66 pool-1-thread-1 |    /mnt/ramdisk/tachyonworker/5 is not on local disk.
+0614-111610.078 SS 15406 66 pool-1-thread-1 | <- tachyon.client.TachyonFile.readByteBufferFromLocal(TachyonFile.java:155)
+0614-111610.078 SS 15406 66 pool-1-thread-1 | -> tachyon.client.TachyonClient.unlockFile(TachyonClient.java:760) in 5
+0614-111610.084 SS 15406 66 pool-1-thread-1 | <- tachyon.client.TachyonClient.unlockFile(TachyonClient.java:773) ret true
+0614-111610.085 SS 15406 66 pool-1-thread-1 | -> tachyon.client.TachyonFile.readByteBufferFromRemote(TachyonFile.java:158)
+0614-111610.085 SS 15406 66 pool-1-thread-1 |    Try to find and read from remote workers.
+0614-111610.085 SS 15406 66 pool-1-thread-1 |   -> tachyon.client.TachyonClient.getFileNetAddresses(TachyonClient.java:468) in 5
+
+0614-111610.086          TM 14988 54 pool-1-thread-29 | -> tachyon.MasterServiceHandler.user_getFileLocationsById(MasterServiceHandler.java:118) in 5
+0614-111610.099          TM 14988 54 pool-1-thread-29 | <- tachyon.MasterServiceHandler.user_getFileLocationsById(MasterServiceHandler.java:128) ret [NetAddress(mHost:tach-retina.corp.adobe.com, mPort:-1)]
+
+0614-111610.100 SS 15406 66 pool-1-thread-1 |   <- tachyon.client.TachyonClient.getFileNetAddresses(TachyonClient.java:484) ret [NetAddress(mHost:tach-retina.corp.adobe.com, mPort:-1)]
+0614-111610.100 SS 15406 66 pool-1-thread-1 |    readByteBufferFromRemote() [NetAddress(mHost:tach-retina.corp.adobe.com, mPort:-1)]
+0614-111610.100 SS 15406 66 pool-1-thread-1 | <- tachyon.client.TachyonFile.readByteBufferFromRemote(TachyonFile.java:203)
+0614-111610.134 SS 15406 66 pool-1-thread-1 | -> tachyon.client.TachyonClient.getClientFileInfo(TachyonClient.java:445) in 5
+
+0614-111610.135          TM 14988 55 pool-1-thread-30 | -> tachyon.MasterServiceHandler.user_getClientFileInfoById(MasterServiceHandler.java:102) in 5
+0614-111610.136          TM 14988 55 pool-1-thread-30 | <- tachyon.MasterServiceHandler.user_getClientFileInfoById(MasterServiceHandler.java:106) ret ClientFileInfo(id:5, name:log4j.properties, path:/user/hobin/input/log4j.properties, checkpointPath:hdfs://localhost:9000/user/hobin/input/log4j.properties, sizeBytes:4654, creationTimeMs:1371232082026, ready:true, folder:false, inMemory:false, needPin:false, needCache:true)
+
+0614-111610.136 SS 15406 66 pool-1-thread-1 | <- tachyon.client.TachyonClient.getClientFileInfo(TachyonClient.java:464) ret ClientFileInfo(id:5, name:log4j.properties, path:/user/hobin/input/log4j.properties, checkpointPath:hdfs://localhost:9000/user/hobin/input/log4j.properties, sizeBytes:4654, creationTimeMs:1371232082026, ready:true, folder:false, inMemory:false, needPin:false, needCache:true)
+0614-111610.138 SS 15406 66 pool-1-thread-1 | -> tachyon.client.OutStream.<init>(OutStream.java:51) in /user/hobin/input/log4j.properties, WRITE_CACHE
+0614-111610.138 SS 15406 66 pool-1-thread-1 |   -> tachyon.client.TachyonClient.hasLocalWorker(TachyonClient.java:595)
+0614-111610.139 SS 15406 66 pool-1-thread-1 |   <- tachyon.client.TachyonClient.hasLocalWorker(TachyonClient.java:598)
+0614-111610.139 SS 15406 66 pool-1-thread-1 |   -> tachyon.client.TachyonClient.createAndGetUserTempFolder(TachyonClient.java:278)
+0614-111610.140 SS 15406 66 pool-1-thread-1 |      Folder /mnt/ramdisk/tachyonworker/users/1 was created!
+0614-111610.140 SS 15406 66 pool-1-thread-1 |   <- tachyon.client.TachyonClient.createAndGetUserTempFolder(TachyonClient.java:297)
+0614-111610.141 SS 15406 66 pool-1-thread-1 |    File /mnt/ramdisk/tachyonworker/users/1/5 was created!
+0614-111610.142 SS 15406 66 pool-1-thread-1 | <- tachyon.client.OutStream.<init>(OutStream.java:81)
+0614-111610.150 SS 15406 66 pool-1-thread-1 | -> tachyon.client.TachyonClient.requestSpace(TachyonClient.java:699) in 4654
+
+0614-111610.157                    TW 15015 19 pool-1-thread-7 | -> tachyon.WorkerServiceHandler.requestSpace(WorkerServiceHandler.java:369) in 1, 8388608
+0614-111610.158                    TW 15015 19 pool-1-thread-7 |    requestSpace(1, 8388608): Current available: 1073741824 requested: 8388608
+0614-111610.158                    TW 15015 19 pool-1-thread-7 | <- tachyon.WorkerServiceHandler.requestSpace(WorkerServiceHandler.java:387)
+
+0614-111610.159 SS 15406 66 pool-1-thread-1 | <- tachyon.client.TachyonClient.requestSpace(TachyonClient.java:737) ret true
+0614-111610.161 SS 15406 66 pool-1-thread-1 | -> tachyon.client.TachyonClient.cacheFile(TachyonClient.java:152) in 5
+
+0614-111610.168                    TW 15015 20 pool-1-thread-8 | -> tachyon.WorkerServiceHandler.getUserTempFolder(WorkerServiceHandler.java:219) in 1
+0614-111610.169                    TW 15015 20 pool-1-thread-8 | <- tachyon.WorkerServiceHandler.getUserTempFolder(WorkerServiceHandler.java:223) ret /mnt/ramdisk/tachyonworker/users/1
+
+0614-111610.177          TM 14988 56 pool-1-thread-31 | -> tachyon.MasterServiceHandler.worker_cacheFile(MasterServiceHandler.java:246) in 1371233000001, 8388608, 5, 4654
+0614-111610.178          TM 14988 56 pool-1-thread-31 |   -> tachyon.MasterInfo.cachedFile(MasterInfo.java:271) in 1371233000001, 8388608, 5, 4654
+0614-111610.178          TM 14988 56 pool-1-thread-31 |   <- tachyon.MasterInfo.cachedFile(MasterInfo.java:306)
+0614-111610.178          TM 14988 56 pool-1-thread-31 | <- tachyon.MasterServiceHandler.worker_cacheFile(MasterServiceHandler.java:248)
+
+0614-111610.180 SS 15406 66 pool-1-thread-1 | <- tachyon.client.TachyonClient.cacheFile(TachyonClient.java:173)
+0614-111610.180 SS 15406 66 pool-1-thread-1 | -> tachyon.client.TachyonClient.lockFile(TachyonClient.java:643) in 5
+0614-111610.182 SS 15406 66 pool-1-thread-1 | <- tachyon.client.TachyonClient.lockFile(TachyonClient.java:657) ret true
+0614-111610.182 SS 15406 66 pool-1-thread-1 | -> tachyon.client.TachyonFile.readByteBufferFromLocal(TachyonFile.java:135)
+0614-111610.182 SS 15406 66 pool-1-thread-1 |   -> tachyon.client.TachyonClient.getRootFolder(TachyonClient.java:588)
+0614-111610.182 SS 15406 66 pool-1-thread-1 |   <- tachyon.client.TachyonClient.getRootFolder(TachyonClient.java:592) ret /mnt/ramdisk/tachyonworker
+0614-111610.183 SS 15406 66 pool-1-thread-1 |   -> tachyon.client.TachyonClient.getRootFolder(TachyonClient.java:588)
+0614-111610.183 SS 15406 66 pool-1-thread-1 |   <- tachyon.client.TachyonClient.getRootFolder(TachyonClient.java:592) ret /mnt/ramdisk/tachyonworker
+0614-111610.184 SS 15406 66 pool-1-thread-1 |   -> tachyon.client.TachyonClient.accessLocalFile(TachyonClient.java:93) in 5
+0614-111610.191 SS 15406 66 pool-1-thread-1 |   <- tachyon.client.TachyonClient.accessLocalFile(TachyonClient.java:106)
+0614-111610.191 SS 15406 66 pool-1-thread-1 | <- tachyon.client.TachyonFile.readByteBufferFromLocal(TachyonFile.java:155) ret java.nio.DirectByteBufferR[pos=0 lim=4654 cap=4654]
+0614-111610.196 SS 15406 66 pool-1-thread-1 | -> tachyon.client.TachyonClient.unlockFile(TachyonClient.java:760) in 5
+0614-111610.197 SS 15406 66 pool-1-thread-1 | <- tachyon.client.TachyonClient.unlockFile(TachyonClient.java:773) ret true
+0614-111610.205 SS Finished ResultTask(0, 0)
+0614-111610.207 SS Completed ResultTask(0, 0)
+0614-111610.210 SS Stage 0 (textFile at <console>:12) finished in 0.249 s
+0614-111610.211 SS Job finished: count at <console>:15, took 0.274902816 s
+res0: Long = 138
+
+scala> s.count()
+0614-111614.860 SS Starting job: count at <console>:15
+0614-111614.860 SS Got job 1 (count at <console>:15) with 1 output partitions (allowLocal=false)
+0614-111614.861 SS Final stage: Stage 1 (textFile at <console>:12)
+0614-111614.861 SS Parents of final stage: List()
+0614-111614.862 SS Missing parents: List()
+0614-111614.862 SS Submitting Stage 1 (MappedRDD[1] at textFile at <console>:12), which has no missing parents
+0614-111614.862 SS Submitting 1 missing tasks from Stage 1 (MappedRDD[1] at textFile at <console>:12)
+0614-111614.863 SS Running ResultTask(1, 0)
+0614-111614.864 SS Size of task 0 is 1455 bytes
+0614-111614.884 SS 15406 66 pool-1-thread-1 | -> tachyon.client.TachyonClient.getFileId(TachyonClient.java:548) in /user/hobin/input/log4j.properties
+
+0614-111614.885          TM 14988 62 pool-1-thread-37 | -> tachyon.MasterServiceHandler.user_getFileId(MasterServiceHandler.java:145) in /user/hobin/input/log4j.properties
+0614-111614.886          TM 14988 62 pool-1-thread-37 | <- tachyon.MasterServiceHandler.user_getFileId(MasterServiceHandler.java:149) ret 5
+
+0614-111614.886 SS 15406 66 pool-1-thread-1 | <- tachyon.client.TachyonClient.getFileId(TachyonClient.java:565) ret 5
+0614-111614.887 SS 15406 66 pool-1-thread-1 | -> tachyon.client.TachyonClient.getClientFileInfo(TachyonClient.java:445) in 5
+
+0614-111614.888          TM 14988 63 pool-1-thread-38 | -> tachyon.MasterServiceHandler.user_getClientFileInfoById(MasterServiceHandler.java:102) in 5
+0614-111614.888          TM 14988 63 pool-1-thread-38 | <- tachyon.MasterServiceHandler.user_getClientFileInfoById(MasterServiceHandler.java:106) ret ClientFileInfo(id:5, name:log4j.properties, path:/user/hobin/input/log4j.properties, checkpointPath:hdfs://localhost:9000/user/hobin/input/log4j.properties, sizeBytes:4654, creationTimeMs:1371232082026, ready:true, folder:false, inMemory:true, needPin:false, needCache:true)
+
+0614-111614.889 SS 15406 66 pool-1-thread-1 | <- tachyon.client.TachyonClient.getClientFileInfo(TachyonClient.java:464) ret ClientFileInfo(id:5, name:log4j.properties, path:/user/hobin/input/log4j.properties, checkpointPath:hdfs://localhost:9000/user/hobin/input/log4j.properties, sizeBytes:4654, creationTimeMs:1371232082026, ready:true, folder:false, inMemory:true, needPin:false, needCache:true)
+0614-111614.889 SS 15406 66 pool-1-thread-1 | -> tachyon.client.TachyonClient.lockFile(TachyonClient.java:643) in 5
+0614-111614.891 SS 15406 66 pool-1-thread-1 | <- tachyon.client.TachyonClient.lockFile(TachyonClient.java:657) ret true
+0614-111614.891 SS 15406 66 pool-1-thread-1 | -> tachyon.client.TachyonFile.readByteBufferFromLocal(TachyonFile.java:135)
+0614-111614.891 SS 15406 66 pool-1-thread-1 |   -> tachyon.client.TachyonClient.getRootFolder(TachyonClient.java:588)
+0614-111614.891 SS 15406 66 pool-1-thread-1 |   <- tachyon.client.TachyonClient.getRootFolder(TachyonClient.java:592) ret /mnt/ramdisk/tachyonworker
+0614-111614.891 SS 15406 66 pool-1-thread-1 |   -> tachyon.client.TachyonClient.getRootFolder(TachyonClient.java:588)
+0614-111614.891 SS 15406 66 pool-1-thread-1 |   <- tachyon.client.TachyonClient.getRootFolder(TachyonClient.java:592) ret /mnt/ramdisk/tachyonworker
+0614-111614.892 SS 15406 66 pool-1-thread-1 |   -> tachyon.client.TachyonClient.accessLocalFile(TachyonClient.java:93) in 5
+0614-111614.893 SS 15406 66 pool-1-thread-1 |   <- tachyon.client.TachyonClient.accessLocalFile(TachyonClient.java:106)
+0614-111614.893 SS 15406 66 pool-1-thread-1 | <- tachyon.client.TachyonFile.readByteBufferFromLocal(TachyonFile.java:155) ret java.nio.DirectByteBufferR[pos=0 lim=4654 cap=4654]
+0614-111614.895 SS 15406 66 pool-1-thread-1 | -> tachyon.client.TachyonClient.unlockFile(TachyonClient.java:760) in 5
+0614-111614.897 SS 15406 66 pool-1-thread-1 | <- tachyon.client.TachyonClient.unlockFile(TachyonClient.java:773) ret true
+0614-111614.898 SS Finished ResultTask(1, 0)
+0614-111614.898 SS Completed ResultTask(1, 0)
+0614-111614.898 SS Stage 1 (textFile at <console>:12) finished in 0.036 s
+0614-111614.899 SS Job finished: count at <console>:15, took 0.038679217 s
+res1: Long = 138
+
