@@ -594,7 +594,9 @@ public class TachyonClient {
   public synchronized boolean hasLocalWorker() {
 	  try (CT _ = new CT()) {
     connect();
-    return (mIsWorkerLocal && mWorkerClient != null);
+    boolean r = (mIsWorkerLocal && mWorkerClient != null);
+    _.Returns(r);
+    return r;
   } }
 
   public synchronized boolean isConnected() {

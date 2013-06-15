@@ -151,6 +151,7 @@ public class WorkerServiceHandler implements WorkerService.Iface {
   @Override
   public void cacheFile(long userId, int fileId)
       throws FileDoesNotExistException, SuspectedFileSizeException, TException {
+    try (CT _ = new CT(userId, fileId)) {
     File srcFile = new File(getUserTempFolder(userId) + "/" + fileId);
     File dstFile = new File(mDataFolder + "/" + fileId);
     long fileSizeBytes = srcFile.length(); 
@@ -165,7 +166,7 @@ public class WorkerServiceHandler implements WorkerService.Iface {
     mUsers.addOwnBytes(userId, - fileSizeBytes);
     mMasterClient.worker_cachedFile(mWorkerInfo.getId(), 
         mWorkerInfo.getUsedBytes(), fileId, fileSizeBytes);
-  }
+  } }
 
   public void checkStatus() {
     List<Long> removedUsers = mUsers.checkStatus(mWorkerInfo);
@@ -286,6 +287,7 @@ public class WorkerServiceHandler implements WorkerService.Iface {
 
   @Override
   public void lockFile(int fileId, long userId) throws TException {
+    try (CT _ = new CT()) {
     synchronized (mUsersPerLockedFile) {
       if (!mUsersPerLockedFile.containsKey(fileId)) {
         mUsersPerLockedFile.put(fileId, new HashSet<Long>());
@@ -297,7 +299,7 @@ public class WorkerServiceHandler implements WorkerService.Iface {
       }
       mLockedFilesPerUser.get(userId).add(fileId);
     }
-  }
+  } }
 
   private boolean memoryEvictionLRU() {
     long latestTimeMs = Long.MAX_VALUE;
@@ -383,6 +385,7 @@ public class WorkerServiceHandler implements WorkerService.Iface {
 
     mUsers.addOwnBytes(userId, requestBytes);
 
+    _.Returns(true);
     return true;
   } }
 
@@ -394,6 +397,7 @@ public class WorkerServiceHandler implements WorkerService.Iface {
 
   @Override
   public void unlockFile(int fileId, long userId) throws TException {
+    try (CT _ = new CT()) {
     synchronized (mUsersPerLockedFile) {
       if (mUsersPerLockedFile.containsKey(fileId)) {
         mUsersPerLockedFile.get(fileId).remove(userId);
@@ -406,7 +410,7 @@ public class WorkerServiceHandler implements WorkerService.Iface {
         mLockedFilesPerUser.get(userId).remove(fileId);
       }
     }
-  }
+  } }
 
   @Override
   public void userHeartbeat(long userId) throws TException {

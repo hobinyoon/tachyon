@@ -60,8 +60,11 @@ public class Master {
 
   public static Master createMaster(InetSocketAddress address, int webport,
       int selectorThreads, int acceptQueueSizePerThreads, int workerThreads) {
+    CT.setLogger(LOG);
+
+		try (CT _ = new CT()) {
     return new Master(address, webport, selectorThreads, acceptQueueSizePerThreads, workerThreads);
-  }
+  } }
 
   public void start() {
 		try (CT _ = new CT()) {
@@ -82,7 +85,7 @@ public class Master {
 
 		try (CT _ = new CT()) {
     if (args.length != 0) {
-      LOG.info("java -cp target/tachyon-" + Version.VERSION + "-jar-with-dependencies.jar " +
+      _.Info("java -cp target/tachyon-" + Version.VERSION + "-jar-with-dependencies.jar " +
           "tachyon.Master");
       System.exit(-1);
     }

@@ -151,6 +151,7 @@ public class TachyonFile {
       } 
     }
 
+    _.Returns(null);
     return null;
   } }
 
@@ -199,6 +200,8 @@ public class TachyonFile {
       ret.order(ByteOrder.nativeOrder());
     }
 
+    if (ret == null)
+      _.Returns(null);
     return ret;
   } }
 
