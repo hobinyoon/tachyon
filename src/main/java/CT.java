@@ -26,9 +26,9 @@ public class CT implements AutoCloseable
     {
       _logger = logger;
       Info(_logger, "_logger was already set. updating.");
-      StackTraceElement[] ste = Thread.currentThread().getStackTrace();
-      for (int i = 2; i < ste.length; i ++)
-        Info(_logger, " " + ste[i]);
+      //StackTraceElement[] ste = Thread.currentThread().getStackTrace();
+      //for (int i = 2; i < ste.length; i ++)
+      //  Info(_logger, " " + ste[i]);
     }
   }
 
@@ -47,7 +47,6 @@ public class CT implements AutoCloseable
       if (sb.length() != 0)
         sb.append(", ");
 
-      // TODO: need to handle collection of collection?
       if (o instanceof List)
       {
         sb.append("[");
