@@ -45,39 +45,38 @@ public class TachyonFileSystem extends FileSystem {
   @Override
   public FSDataOutputStream append(Path path, int bufferSize, Progressable progress)
       throws IOException {
-    LOG.debug("TachyonFileSystem append(" + path + ", " + bufferSize + ", " + progress + ")");
+    try (CT _ = new CT(path, bufferSize, progress)) {
     throw new IOException("Not supported");
-  }
+  } }
 
   @Override
   public FSDataOutputStream create(Path cPath, FsPermission permission, boolean overwrite,
       int bufferSize, short replication, long blockSize, Progressable progress)
           throws IOException {
-    LOG.debug("TachyonFileSystem create(" + cPath + ", " + permission + ", " + overwrite + 
-        ", " + bufferSize + ", " + replication + ", " + blockSize + ", " + progress + ")");
-
+    try (CT _ = new CT(cPath, permission, overwrite, bufferSize, replication, blockSize, progress)) {
     String path = Utils.getPathWithoutScheme(cPath);
 
     Path hdfsPath = Utils.getHDFSPath(path);
     FileSystem fs = hdfsPath.getFileSystem(getConf());
-    LOG.debug("TachyonFileSystem mkdirs: making dir " + hdfsPath);
+    _.Debug("TachyonFileSystem mkdirs: making dir " + hdfsPath);
 
     return fs.create(hdfsPath, permission, overwrite, bufferSize, replication, blockSize,
         progress);
-  }
+  } }
 
   @Override
   @Deprecated
   public boolean delete(Path path) throws IOException {
+    try (CT _ = new CT(path)) {
     throw new IOException("Not supported");
-  }
+  } }
 
   @Override
   public boolean delete(Path path, boolean recursive) throws IOException {
-    LOG.debug("TachyonFileSystem delete(" + path + ", " + recursive + ")");
+    try (CT _ = new CT(path, recursive)) {
     Path hdfsPath = Utils.getHDFSPath(path);
     FileSystem fs = hdfsPath.getFileSystem(getConf());
-    LOG.debug("TachyonFileSystem delete(" + hdfsPath + ", " + recursive + ")");
+    _.Debug("TachyonFileSystem delete(" + hdfsPath + ", " + recursive + ")");
     boolean succeed = false;
     try {
       succeed = mTachyonClient.delete(Utils.getPathWithoutScheme(path));
@@ -85,7 +84,7 @@ public class TachyonFileSystem extends FileSystem {
       throw new IOException(e);
     }
     return fs.delete(hdfsPath, recursive) && succeed;
-  }
+  } }
 
   @Override
   /**
@@ -94,10 +93,11 @@ public class TachyonFileSystem extends FileSystem {
    * If the file does not exist in Tachyon, query it from HDFS. 
    */
   public FileStatus getFileStatus(Path path) throws IOException {
+    try (CT _ = new CT(path)) {
     String filePath = Utils.getPathWithoutScheme(path);
     Path hdfsPath = Utils.getHDFSPath(filePath);
 
-    LOG.debug("TachyonFileSystem getFilesStatus(" + path + "): Corresponding HDFS Path: " + hdfsPath);
+    _.Debug("TachyonFileSystem getFilesStatus(" + path + "): Corresponding HDFS Path: " + hdfsPath);
 
     FileSystem fs = hdfsPath.getFileSystem(getConf());
     FileStatus hfs = fs.getFileStatus(hdfsPath);
@@ -107,15 +107,15 @@ public class TachyonFileSystem extends FileSystem {
         int fileId;
         fileId = mTachyonClient.getFileId(filePath);
         if (fileId > 0) {
-          LOG.debug("Tachyon has file " + filePath);
+          _.Debug("Tachyon has file " + filePath);
         } else {
-          LOG.debug("Tachyon does not have file " + filePath);
+          _.Debug("Tachyon does not have file " + filePath);
           int tmp = mTachyonClient.createFile(filePath);
           if (tmp != -1) {
             mTachyonClient.addCheckpointPath(tmp, hdfsPath.toString());
-            LOG.debug("Tachyon does not have file " + filePath + " checkpoint added.");
+            _.Debug("Tachyon does not have file " + filePath + " checkpoint added.");
           } else {
-            LOG.debug("Tachyon does not have file " + filePath + " and creation failed.");
+            _.Debug("Tachyon does not have file " + filePath + " and creation failed.");
           }
         }
       }
@@ -128,34 +128,38 @@ public class TachyonFileSystem extends FileSystem {
     } catch (FileAlreadyExistException e) {
       throw new IOException(e);
     } catch (TException e) {
-      LOG.error(e.getMessage());
+      _.Error(e.getMessage());
     } 
 
     FileStatus ret = new FileStatus(hfs.getLen(), hfs.isDir(), hfs.getReplication(),
         Integer.MAX_VALUE, hfs.getModificationTime(), hfs.getAccessTime(), hfs.getPermission(),
         hfs.getOwner(), hfs.getGroup(), new Path(mTachyonHeader + filePath));
-    LOG.debug(mTachyonHeader + filePath);
+    _.Debug(mTachyonHeader + filePath);
 
-    LOG.debug("HFS: " + Utils.toStringHadoopFileStatus(hfs));
-    LOG.debug("TFS: " + Utils.toStringHadoopFileStatus(ret));
+    _.Debug("HFS: " + Utils.toStringHadoopFileStatus(hfs));
+    _.Debug("TFS: " + Utils.toStringHadoopFileStatus(ret));
 
+    _.Returns(ret);
     return ret;
-  }
+  } }
 
   @Override
   public URI getUri() {
+    try (CT _ = new CT()) {
     return mUri;
-  }
+  } }
 
   @Override
   public Path getWorkingDirectory() {
-    LOG.debug("TachyonFileSystem getWorkingDirectory() with return " + mWorkingDir);
+    try (CT _ = new CT()) {
+     _.Returns(mWorkingDir);
     return mWorkingDir;
-  }
+  } }
 
   @Override
   public BlockLocation[] getFileBlockLocations(FileStatus file, long start, long len) 
       throws IOException {
+    try (CT _ = new CT(file, start, len)) {
     if (file == null) {
       return null;
     }
@@ -169,7 +173,7 @@ public class TachyonFileSystem extends FileSystem {
     try {
       fileId = mTachyonClient.getFileId(path);
     } catch (InvalidPathException e) {
-      LOG.warn(e.getMessage());
+      _.Warn(e.getMessage());
       fileId = -1;
     }
 
@@ -201,7 +205,7 @@ public class TachyonFileSystem extends FileSystem {
     BlockLocation[] res = new BlockLocation[1];
     res[0] = ret;
     return res;
-  }
+  } }
 
   @Override
   /**
@@ -223,9 +227,10 @@ public class TachyonFileSystem extends FileSystem {
    * Return all files in the path.
    */
   public FileStatus[] listStatus(Path path) throws IOException {
+    try (CT _ = new CT(path)) {
     String filePath = Utils.getPathWithoutScheme(path);
     Path hdfsPath = Utils.getHDFSPath(filePath);
-    LOG.debug("TachyonFileSystem listStatus(" + path + "): Corresponding HDFS Path: " + hdfsPath);
+    _.Debug("TachyonFileSystem listStatus(" + path + "): Corresponding HDFS Path: " + hdfsPath);
     FileSystem fs = hdfsPath.getFileSystem(getConf());
     FileStatus[] hfs = fs.listStatus(hdfsPath);
     ArrayList<FileStatus> tRet = new ArrayList<FileStatus>();
@@ -243,26 +248,24 @@ public class TachyonFileSystem extends FileSystem {
     ret = tRet.toArray(ret);
 
     return ret;
-  }
+  } }
 
   @Override
   public boolean mkdirs(Path cPath, FsPermission permission) throws IOException {
-    LOG.debug("TachyonFileSystem mkdirs(" + cPath + ", " + permission + ")");
-
+    try (CT _ = new CT(cPath, permission)) {
     String path = Utils.getPathWithoutScheme(cPath);
     Path hdfsPath = Utils.getHDFSPath(path);
     FileSystem fs = hdfsPath.getFileSystem(getConf());
-    LOG.debug("TachyonFileSystem mkdirs: making dir " + hdfsPath);
+    _.Debug("TachyonFileSystem mkdirs: making dir " + hdfsPath);
     return fs.mkdirs(hdfsPath);
-  }
+  } }
 
   @Override
   /**
    * Return the inputstream of a file.
    */
   public FSDataInputStream open(Path cPath, int bufferSize) throws IOException {
-    LOG.debug("TachyonFileSystem open(" + cPath + ", " + bufferSize + ")");
-
+    try (CT _ = new CT(cPath, bufferSize)) {
     String path = Utils.getPathWithoutScheme(cPath);
 
     String rawPath = path;
@@ -271,7 +274,7 @@ public class TachyonFileSystem extends FileSystem {
     try {
       fileId = mTachyonClient.getFileId(path);
     } catch (InvalidPathException e) {
-      LOG.warn(e.getMessage());
+      _.Warn(e.getMessage());
       fileId = -1;
     }
 
@@ -283,11 +286,11 @@ public class TachyonFileSystem extends FileSystem {
 
     return new FSDataInputStream(new TFileInputStreamHdfs(mTachyonClient, fileId,
         hdfsPath, getConf(), bufferSize));
-  }
+  } }
 
   @Override
   public boolean rename(Path src, Path dst) throws IOException {
-    LOG.debug("TachyonFileSystem rename(" + src + ", " + dst + ")");
+    try (CT _ = new CT(src, dst)) {
     Path hSrc = Utils.getHDFSPath(src);
     Path hDst = Utils.getHDFSPath(dst);
     FileSystem fs = hSrc.getFileSystem(getConf());
@@ -299,15 +302,15 @@ public class TachyonFileSystem extends FileSystem {
       throw new IOException(e);
     }
     return fs.rename(hSrc, hDst) && succeed;
-  }
+  } }
 
   @Override
   public void setWorkingDirectory(Path path) {
-    LOG.debug("TachyonFileSystem setWorkingDirectory(" + path + ")");
+    try (CT _ = new CT(path)) {
     if (path.isAbsolute()) {
       mWorkingDir = path;
     } else {
       mWorkingDir = new Path(mWorkingDir, path);
     }
-  }
+  } }
 }

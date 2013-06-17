@@ -13,6 +13,8 @@ import org.apache.log4j.Logger;
 
 import tachyon.conf.CommonConf;
 
+import CodeTracer.CT;
+
 /**
  * <code>Users</code> represents and manages all users contacting to a worker.
  */
@@ -51,7 +53,8 @@ public class Users {
   }
 
   public List<Long> checkStatus(WorkerInfo workerInfo) {
-    LOG.debug("Worker is checking all users' status.");
+	  try (CT _ = new CT(workerInfo)) {
+    _.Debug("Worker is checking all users' status.");
     List<Long> ret = new ArrayList<Long>();
     synchronized (USERS) {
       List<Long> toRemoveUsers = new ArrayList<Long>();
@@ -67,7 +70,7 @@ public class Users {
       }
     }
     return ret;
-  }
+  } }
 
   public String getUserTempFolder(long userId) {
     return USER_FOLDER + "/" + userId;
@@ -78,6 +81,7 @@ public class Users {
   }
 
   private long removeUser(long userId) {
+	  try (CT _ = new CT(userId)) {
     StringBuilder sb = new StringBuilder("Trying to cleanup user " + userId + " : ");
     UserInfo tUser = null;
     synchronized (USERS) {
@@ -104,13 +108,14 @@ public class Users {
       try {
         UnderFileSystem.getUnderFileSystem(CommonConf.get().UNDERFS_ADDRESS).delete(folder, true);
       } catch (IOException e) {
-        LOG.error(e);
+        _.Error(e.getMessage());
       }
     }
 
-    LOG.info(sb.toString());
+    _.Info(sb.toString());
+    _.Returns(ret);
     return ret;
-  }
+  } }
 
   public void userHeartbeat(long userId) {
     synchronized (USERS) {

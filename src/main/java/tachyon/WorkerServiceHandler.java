@@ -170,6 +170,7 @@ public class WorkerServiceHandler implements WorkerService.Iface {
   } }
 
   public void checkStatus() {
+    try (CT _ = new CT()) {
     List<Long> removedUsers = mUsers.checkStatus(mWorkerInfo);
 
     for (long userId : removedUsers) {
@@ -195,7 +196,7 @@ public class WorkerServiceHandler implements WorkerService.Iface {
         mLatestFileAccessTimeMs.put(fileId, System.currentTimeMillis());
       }
     }
-  }
+  } }
 
   private void freeFile(int fileId) {
     mWorkerInfo.returnUsedBytes(mFileSizes.get(fileId));

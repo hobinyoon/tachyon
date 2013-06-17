@@ -106,6 +106,7 @@ public class TachyonClient {
   } }
 
   public synchronized void addCheckpoint(int fileId) throws IOException {
+	  try (CT _ = new CT(fileId)) {
     connect();
     if (!mConnected) {
       throw new IOException("Failed to add checkpoint for file " + fileId);
@@ -114,21 +115,21 @@ public class TachyonClient {
       try {
         mWorkerClient.addCheckpoint(mUserId, fileId);
       } catch (FileDoesNotExistException e) {
-        LOG.error(e.getMessage(), e);
+        _.Error(e.getMessage());
         throw new IOException(e);
       } catch (SuspectedFileSizeException e) {
-        LOG.error(e.getMessage(), e);
+        _.Error(e.getMessage());
         throw new IOException(e);
       } catch (FailedToCheckpointException e) {
-        LOG.error(e.getMessage(), e);
+        _.Error(e.getMessage());
         throw new IOException(e);
       }catch (TException e) {
-        LOG.error(e.getMessage(), e);
+        _.Error(e.getMessage());
         mWorkerClient = null;
         throw new IOException(e);
       } 
     }
-  }
+  } }
 
   /**
    * This API is not recommended to use.
@@ -142,11 +143,12 @@ public class TachyonClient {
    */
   public synchronized boolean addCheckpointPath(int id, String path)
       throws FileDoesNotExistException, SuspectedFileSizeException, TException, IOException {
+	  try (CT _ = new CT(id, path)) {
     connect();
     UnderFileSystem hdfsClient = UnderFileSystem.getUnderFileSystem(path);
     long fileSizeBytes = hdfsClient.getFileSize(path);
     return mMasterClient.addCheckpoint(-1, id, fileSizeBytes, path);
-  }
+  } }
 
   public synchronized void cacheFile(int fileId) throws IOException  {
 	  try (CT _ = new CT(fileId)) {
@@ -159,13 +161,13 @@ public class TachyonClient {
       try {
         mWorkerClient.cacheFile(mUserId, fileId);
       } catch (FileDoesNotExistException e) {
-        LOG.error(e.getMessage(), e);
+        _.Error(e.getMessage());
         throw new IOException(e);
       } catch (SuspectedFileSizeException e) {
-        LOG.error(e.getMessage(), e);
+        _.Error(e.getMessage());
         throw new IOException(e);
       } catch (TException e) {
-        LOG.error(e.getMessage(), e);
+        _.Error(e.getMessage());
         mWorkerClient = null;
         throw new IOException(e);
       } 
@@ -178,7 +180,9 @@ public class TachyonClient {
     if (mMasterClient != null) {
       return;
     }
-    LOG.info("Trying to connect master @ " + mMasterAddress);
+
+    try (CT _ = new CT()) {
+    _.Info("Trying to connect master @ " + mMasterAddress);
     mMasterClient = new MasterClient(mMasterAddress);
     mConnected = mMasterClient.open();
 
@@ -189,7 +193,7 @@ public class TachyonClient {
     try {
       mUserId = mMasterClient.getUserId();
     } catch (TException e) {
-      LOG.error(e.getMessage());
+      _.Error(e.getMessage());
       mConnected = false;
       return;
     }
@@ -199,17 +203,17 @@ public class TachyonClient {
     mIsWorkerLocal = false;
     try {
       String localHostName = InetAddress.getLocalHost().getCanonicalHostName();
-      LOG.info("Trying to get local worker host : " + localHostName);
+      _.Info("Trying to get local worker host : " + localHostName);
       workerNetAddress = mMasterClient.user_getWorker(false, localHostName);
       mIsWorkerLocal = true;
     } catch (NoLocalWorkerException e) {
-      LOG.info(e.getMessage());
+      _.Info(e.getMessage());
       workerNetAddress = null;
     } catch (UnknownHostException e) {
-      LOG.error(e.getMessage());
+      _.Error(e.getMessage());
       workerNetAddress = null;
     } catch (TException e) {
-      LOG.error(e.getMessage());
+      _.Error(e.getMessage());
       mConnected = false;
       workerNetAddress = null;
     }
@@ -218,26 +222,26 @@ public class TachyonClient {
       try {
         workerNetAddress = mMasterClient.user_getWorker(true, "");
       } catch (NoLocalWorkerException e) {
-        LOG.info(e.getMessage());
+        _.Info(e.getMessage());
         workerNetAddress = null;
       } catch (TException e) {
-        LOG.error(e.getMessage());
+        _.Error(e.getMessage());
         mConnected = false;
         workerNetAddress = null;
       }
     }
 
     if (workerNetAddress == null) {
-      LOG.error("No worker running in the system");
+      _.Error("No worker running in the system");
       return;
     }
 
     workerAddress = new InetSocketAddress(workerNetAddress.mHost, workerNetAddress.mPort);
 
-    LOG.info("Connecting " + (mIsWorkerLocal ? "local" : "remote") + " worker @ " + workerAddress);
+    _.Info("Connecting " + (mIsWorkerLocal ? "local" : "remote") + " worker @ " + workerAddress);
     mWorkerClient = new WorkerClient(workerAddress);
     if (!mWorkerClient.open()) {
-      LOG.error("Failed to connect " + (mIsWorkerLocal ? "local" : "remote") + 
+      _.Error("Failed to connect " + (mIsWorkerLocal ? "local" : "remote") + 
           " worker @ " + workerAddress);
       mWorkerClient = null;
       return;
@@ -248,7 +252,7 @@ public class TachyonClient {
       mUserTempFolder = mWorkerClient.getUserTempFolder(mUserId);
       mUserUnderfsTempFolder = mWorkerClient.getUserUnderfsTempFolder(mUserId);
     } catch (TException e) {
-      LOG.error(e.getMessage());
+      _.Error(e.getMessage());
       mDataFolder = null;
       mUserTempFolder = null;
       mWorkerClient = null;
@@ -261,7 +265,7 @@ public class TachyonClient {
       thread.setDaemon(true);
       thread.start();
     }
-  }
+  } }
 
   public synchronized void close() throws TException {
     if (mMasterClient != null) {
@@ -319,6 +323,7 @@ public class TachyonClient {
 
   public synchronized int createRawTable(String path, int columns, ByteBuffer metadata)
       throws InvalidPathException, FileAlreadyExistException, TableColumnException {
+	  try (CT _ = new CT(path, columns, metadata)) {
     connect();
     if (!mConnected) {
       return -1;
@@ -333,14 +338,15 @@ public class TachyonClient {
     try {
       return mMasterClient.user_createRawTable(path, columns, metadata);
     } catch (TException e) {
-      LOG.error(e.getMessage());
+      _.Error(e.getMessage());
       mConnected = false;
       return -1;
     }
-  }
+  } }
 
   public synchronized int createFile(String path)
       throws InvalidPathException, FileAlreadyExistException {
+	  try (CT _ = new CT(path)) {
     connect();
     if (!mConnected) {
       return -1;
@@ -350,14 +356,15 @@ public class TachyonClient {
     try {
       fileId = mMasterClient.user_createFile(path);
     } catch (TException e) {
-      LOG.error(e.getMessage());
+      _.Error(e.getMessage());
       mConnected = false;
       fileId = -1;
     }
     return fileId;
-  }
+  } }
 
   public synchronized boolean delete(int fileId) {
+	  try (CT _ = new CT(fileId)) {
     connect();
     if (!mConnected) {
       return false;
@@ -366,15 +373,15 @@ public class TachyonClient {
     try {
       mMasterClient.user_delete(fileId);
     } catch (FileDoesNotExistException e) {
-      LOG.error(e.getMessage());
+      _.Error(e.getMessage());
       return false;
     } catch (TException e) {
-      LOG.error(e.getMessage());
+      _.Error(e.getMessage());
       return false;
     }
 
     return true;
-  }
+  } }
 
   public synchronized boolean delete(String path) throws InvalidPathException {
     return delete(getFileId(path));
@@ -386,6 +393,7 @@ public class TachyonClient {
 
   public synchronized boolean rename(String srcPath, String dstPath) 
       throws InvalidPathException {
+	  try (CT _ = new CT(srcPath, dstPath)) {
     connect();
     if (!mConnected) {
       return false;
@@ -394,18 +402,18 @@ public class TachyonClient {
     try {
       mMasterClient.user_renameFile(srcPath, dstPath);
     } catch (FileDoesNotExistException e) {
-      LOG.error(e.getMessage());
+      _.Error(e.getMessage());
       return false;
     } catch (FileAlreadyExistException e) {
-      LOG.error(e.getMessage());
+      _.Error(e.getMessage());
       return false;
     } catch (TException e) {
-      LOG.error(e.getMessage());
+      _.Error(e.getMessage());
       return false;
     }
 
     return true;
-  }
+  } }
 
   private synchronized ClientFileInfo getClientFileInfo(String path, boolean useCachedMetadata)
       throws InvalidPathException { 
@@ -451,10 +459,10 @@ public class TachyonClient {
     try {
       ret = mMasterClient.user_getClientFileInfoById(fileId);
     } catch (FileDoesNotExistException e) {
-      LOG.info("File with id " + fileId + " does not exist.");
+      _.Info("File with id " + fileId + " does not exist.");
       return null;
     } catch (TException e) {
-      LOG.error(e.getMessage());
+      _.Error(e.getMessage());
       mConnected = false;
       return null;
     }
@@ -556,7 +564,7 @@ public class TachyonClient {
       fileId = mMasterClient.user_getFileId(path);
     } catch (TException e) {
       // TODO Ideally, this exception should be throws to the upper upper layer.
-      LOG.error(e.getMessage());
+      _.Error(e.getMessage());
       mConnected = false;
       return -1;
     }
@@ -650,7 +658,7 @@ public class TachyonClient {
     try {
       mWorkerClient.lockFile(fileId, mUserId);
     } catch (TException e) {
-      LOG.error(e.getMessage());
+      _.Error(e.getMessage());
       return false;
     }
 
@@ -667,6 +675,7 @@ public class TachyonClient {
    */
   public synchronized int mkdir(String path) 
       throws InvalidPathException, FileAlreadyExistException {
+	  try (CT _ = new CT(path)) {
     connect();
     if (!mConnected) {
       return -1;
@@ -676,22 +685,23 @@ public class TachyonClient {
     try {
       id = mMasterClient.user_mkdir(path);
     } catch (TException e) {
-      LOG.info(e.getMessage());
+      _.Info(e.getMessage());
       id = -1;
     }
     return id;
-  }
+  } }
 
   public synchronized void outOfMemoryForPinFile(int fileId) {
+	  try (CT _ = new CT(fileId)) {
     connect();
     if (mConnected) {
       try {
         mMasterClient.user_outOfMemoryForPinFile(fileId);
       } catch (TException e) {
-        LOG.error(e.getMessage());
+        _.Error(e.getMessage());
       }
     }
-  }
+  } }
 
   public synchronized void releaseSpace(long releaseSpaceBytes) {
     mAvailableSpaceBytes += releaseSpaceBytes;
@@ -706,7 +716,7 @@ public class TachyonClient {
     int failedTimes = 0;
     while (mAvailableSpaceBytes < requestSpaceBytes) {
       if (mWorkerClient == null) {
-        LOG.error("The current host does not have a Tachyon worker.");
+        _.Error("The current host does not have a Tachyon worker.");
         return false;
       }
       try {
@@ -715,14 +725,14 @@ public class TachyonClient {
         if (mWorkerClient.requestSpace(mUserId, toRequestSpaceBytes)) {
           mAvailableSpaceBytes += toRequestSpaceBytes;
         } else {
-          LOG.info("Failed to request " + toRequestSpaceBytes + " bytes local space. " +
+          _.Info("Failed to request " + toRequestSpaceBytes + " bytes local space. " +
               "Time " + (failedTimes ++));
           if (failedTimes == USER_FAILED_SPACE_REQUEST_LIMITS) {
             return false;
           }
         }
       } catch (TException e) {
-        LOG.error(e.getMessage(), e);
+        _.Error(e.getMessage());
         mWorkerClient = null;
         return false;
       }
@@ -739,6 +749,7 @@ public class TachyonClient {
   } }
 
   public synchronized boolean unpinFile(int fileId) {
+	  try (CT _ = new CT(fileId)) {
     connect();
     if (!mConnected) {
       return false;
@@ -747,15 +758,15 @@ public class TachyonClient {
     try {
       mMasterClient.user_unpinFile(fileId);
     } catch (FileDoesNotExistException e) {
-      LOG.error(e.getMessage());
+      _.Error(e.getMessage());
       return false;
     } catch (TException e) {
-      LOG.error(e.getMessage());
+      _.Error(e.getMessage());
       return false;
     }
 
     return true;
-  }
+  } }
 
   // TODO Make it work for lock/unlock file multiple times.
   public synchronized boolean unlockFile(int fileId) {
@@ -767,7 +778,7 @@ public class TachyonClient {
     try {
       mWorkerClient.unlockFile(fileId, mUserId);
     } catch (TException e) {
-      LOG.error(e.getMessage());
+      _.Error(e.getMessage());
       return false;
     }
     _.Returns(true);

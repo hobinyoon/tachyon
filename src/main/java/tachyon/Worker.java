@@ -69,22 +69,23 @@ public class Worker implements Runnable {
       mServer = new THsHaServer(new THsHaServer.Args(new TNonblockingServerSocket(workerAddress)).
           processor(processor).workerThreads(workerThreads));
     } catch (TTransportException e) {
-      LOG.error(e.getMessage(), e);
+      _.Error(e.getMessage());
       System.exit(-1);
     }
   } }
 
   @Override
   public void run() {
+    try (CT _ = new CT()) {
     long lastHeartbeatMs = System.currentTimeMillis();
     Command cmd = null;
     while (true) {
       long diff = System.currentTimeMillis() - lastHeartbeatMs;
       if (diff < WorkerConf.get().TO_MASTER_HEARTBEAT_INTERVAL_MS) {
-        LOG.debug("Heartbeat process takes " + diff + " ms.");
+        _.Debug("Heartbeat process takes " + diff + " ms.");
         CommonUtils.sleepMs(LOG, WorkerConf.get().TO_MASTER_HEARTBEAT_INTERVAL_MS - diff);
       } else {
-        LOG.error("Heartbeat process takes " + diff + " ms.");
+        _.Error("Heartbeat process takes " + diff + " ms.");
       }
 
       try {
@@ -92,7 +93,7 @@ public class Worker implements Runnable {
 
         lastHeartbeatMs = System.currentTimeMillis();
       } catch (TException e) {
-        LOG.error(e.getMessage(), e);
+        _.Error(e.getMessage());
         mWorkerServiceHandler.resetMasterClient();
         CommonUtils.sleepMs(LOG, 1000);
         cmd = null;
@@ -104,20 +105,20 @@ public class Worker implements Runnable {
       if (cmd != null) {
         switch (cmd.mCommandType) {
           case Unknown :
-            LOG.error("Unknown command: " + cmd);
+            _.Error("Unknown command: " + cmd);
             break;
           case Nothing :
-            LOG.debug("Nothing command: " + cmd);
+            _.Debug("Nothing command: " + cmd);
             break;
           case Register :
             mWorkerServiceHandler.register();
-            LOG.info("Register command: " + cmd);
+            _.Info("Register command: " + cmd);
             break;
           case Free :
-            LOG.info("Free command: " + cmd);
+            _.Info("Free command: " + cmd);
             break;
           case Delete :
-            LOG.info("Delete command: " + cmd);
+            _.Info("Delete command: " + cmd);
             break;
           default :
             CommonUtils.runtimeException("Un-recognized command from master " + cmd.toString());
@@ -126,7 +127,7 @@ public class Worker implements Runnable {
 
       mWorkerServiceHandler.checkStatus();
     }
-  }
+  } }
 
   public static synchronized Worker createWorker(InetSocketAddress masterAddress, 
       InetSocketAddress workerAddress, int dataPort, int selectorThreads,
