@@ -6,6 +6,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.Collections;
 import java.util.List;
 import org.apache.log4j.Logger;
+import org.apache.log4j.Level;
 import org.apache.commons.lang.StringUtils;
 
 
@@ -17,6 +18,8 @@ public class CT implements AutoCloseable
 
   String _input = null;
   String _returns = null;
+
+  Level _log_level = Level.INFO;
 
   static public void setLogger(Logger logger)
   {
@@ -36,8 +39,17 @@ public class CT implements AutoCloseable
 	{
     StringBuilder sb = null;
 
+    boolean first_arg = true;
+
     for (Object o: objs)
     {
+      if (first_arg && (o instanceof Level))
+      {
+        _log_level = (Level) o;
+        first_arg = false;
+        continue;
+      }
+
       if (o == null)
         o = "null";
 
@@ -50,7 +62,7 @@ public class CT implements AutoCloseable
       if (o instanceof List)
       {
         sb.append("[");
-        sb.append(StringUtils.join((List<Object>)o, ", "));
+        sb.append(StringUtils.join((List<Object>) o, ", "));
         sb.append("]");
       }
       else
@@ -61,14 +73,14 @@ public class CT implements AutoCloseable
       _input = sb.toString();
 
 		StackTraceElement ste = Thread.currentThread().getStackTrace()[2];
-		_Info(1, ste);
+		_Log(1, ste);
 	}
 
 	@Override
 	public void close()
   {
 		StackTraceElement ste = Thread.currentThread().getStackTrace()[2];
-		_Info(-1, ste);
+		_Log(-1, ste);
 	}
 
   private static String _Logstr(String s)
@@ -94,6 +106,14 @@ public class CT implements AutoCloseable
     return logstr.toString();
   }
 
+	public void Log(String s)
+	{
+    if (_logger != null)
+      _logger.log(_log_level, _Logstr(s));
+    else
+      System.err.println(_Logstr(s));
+	}
+
 	public void Info(String s)
 	{
     if (_logger != null)
@@ -102,12 +122,13 @@ public class CT implements AutoCloseable
       System.err.println(_Logstr(s));
 	}
 
-	public void InfoCallStack()
+	public void Trace(String s)
 	{
-    StackTraceElement[] ste = Thread.currentThread().getStackTrace();
-    for (int i = 2; i < ste.length; i ++)
-      Info(" " + ste[i]);
-	}
+    if (_logger != null)
+      _logger.trace(_Logstr(s));
+    else
+      System.err.println(_Logstr(s));
+  }
 
 	public void Warn(String s)
 	{
@@ -131,6 +152,21 @@ public class CT implements AutoCloseable
       _logger.debug(_Logstr(s));
     else
       System.err.println(_Logstr(s));
+	}
+
+	public void Fatal(String s)
+	{
+    if (_logger != null)
+      _logger.fatal(_Logstr(s));
+    else
+      System.err.println(_Logstr(s));
+	}
+
+	public void StackTrace()
+	{
+    StackTraceElement[] ste = Thread.currentThread().getStackTrace();
+    for (int i = 2; i < ste.length; i ++)
+      Log(" " + ste[i]);
 	}
 
 	private static void Info(Logger logger, String s)
@@ -162,8 +198,6 @@ public class CT implements AutoCloseable
       if (sb.length() != 0)
         sb.append(", ");
 
-      // TODO: need to handle collection of collection?
-      //if (o instanceof Collections)
       if (o instanceof List)
       {
         sb.append("[");
@@ -178,7 +212,7 @@ public class CT implements AutoCloseable
       _returns = sb.toString();
   }
 
-	private void _Info(int indinc, StackTraceElement ste)
+	private void _Log(int indinc, StackTraceElement ste)
 	{
 		String pid = ManagementFactory.getRuntimeMXBean().getName().split("@")[0];
 		Thread t = Thread.currentThread();
@@ -239,7 +273,7 @@ public class CT implements AutoCloseable
     }
       
     if (_logger != null)
-      _logger.info(logstr.toString());
+      _logger.log(_log_level, logstr.toString());
     else
       System.err.println(logstr.toString());
 
