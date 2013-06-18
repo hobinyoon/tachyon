@@ -15,6 +15,8 @@ import tachyon.thrift.FileDoesNotExistException;
 import tachyon.thrift.SuspectedFileSizeException;
 import tachyon.thrift.WorkerService;
 
+import CodeTracer.CT;
+
 /**
  * The client talks to a worker server. It keeps sending keep alive message to the worker server.
  * 
@@ -104,8 +106,9 @@ public class WorkerClient {
   }
 
   public synchronized void unlockFile(int fileId, long userId) throws TException {
+    try (CT _ = new CT(fileId, userId)) {
     CLIENT.unlockFile(fileId, userId);
-  }
+  } }
 
   public synchronized void userHeartbeat(long userId) throws TException {
     CLIENT.userHeartbeat(userId);

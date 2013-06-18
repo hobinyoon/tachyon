@@ -10,6 +10,7 @@ import org.apache.thrift.server.TServer;
 import org.apache.thrift.transport.TNonblockingServerSocket;
 import org.apache.thrift.transport.TTransportException;
 import org.apache.log4j.Logger;
+import org.apache.log4j.Level;
 
 import tachyon.conf.WorkerConf;
 import tachyon.thrift.Command;
@@ -76,13 +77,13 @@ public class Worker implements Runnable {
 
   @Override
   public void run() {
-    try (CT _ = new CT()) {
+		try (CT _ = new CT(Level.TRACE)) {
     long lastHeartbeatMs = System.currentTimeMillis();
     Command cmd = null;
     while (true) {
       long diff = System.currentTimeMillis() - lastHeartbeatMs;
       if (diff < WorkerConf.get().TO_MASTER_HEARTBEAT_INTERVAL_MS) {
-        _.Debug("Heartbeat process takes " + diff + " ms.");
+        _.Trace("Heartbeat process takes " + diff + " ms.");
         CommonUtils.sleepMs(LOG, WorkerConf.get().TO_MASTER_HEARTBEAT_INTERVAL_MS - diff);
       } else {
         _.Error("Heartbeat process takes " + diff + " ms.");
@@ -108,7 +109,7 @@ public class Worker implements Runnable {
             _.Error("Unknown command: " + cmd);
             break;
           case Nothing :
-            _.Debug("Nothing command: " + cmd);
+            _.Trace("Nothing command: " + cmd);
             break;
           case Register :
             mWorkerServiceHandler.register();

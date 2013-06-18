@@ -10,6 +10,8 @@ import tachyon.Constants;
 import tachyon.UnderFileSystem;
 import tachyon.thrift.ClientFileInfo;
 
+import CodeTracer.CT;
+
 /**
  * <code>InputStream</code> interface implementation of TachyonFile. It can only be gotten by
  * calling the methods in <code>tachyon.client.TachyonFile</code>, but can not be initialized by
@@ -80,6 +82,7 @@ public class InStream extends InputStream {
 
   @Override
   public int read(byte b[], int off, int len) throws IOException {
+    try (CT _ = new CT(b, off, len)) {
     if (b == null) {
       throw new NullPointerException();
     } else if (off < 0 || len < 0 || len > b.length - off) {
@@ -88,29 +91,37 @@ public class InStream extends InputStream {
       return 0;
     }
 
+    _.Info(FILE.CLIENT_FILE_INFO.toString());
+
     if (mBuffer != null) {
+      _.Info(mBuffer.toString());
       int ret = Math.min(len, mBuffer.remaining());
       if (ret == 0) {
         close();
+        _.Returns(-1);
         return -1;
       }
       mBuffer.get(b, off, ret);
+      _.Returns(ret);
       return ret;
     }
 
-    return mCheckpointInputStream.read(b, off, len);
-  }
+    int nb = mCheckpointInputStream.read(b, off, len);
+    _.Returns(nb);
+    return nb;
+  } }
 
   @Override
   public void close() throws IOException {
     if (!mClosed) {
+    try (CT _ = new CT()) {
       if (mBuffer != null) {
         FILE.releaseFileLock();
       }
       if (mCheckpointInputStream != null) {
         mCheckpointInputStream.close();
       }
-    }
+    } }
     mClosed = true;
   }
 }

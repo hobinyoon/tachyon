@@ -112,6 +112,8 @@ public class TachyonFile {
   }
 
   public ByteBuffer readByteBuffer() {
+    try (CT _ = new CT()) {
+
     if (!isReady()) {
       return null;
     }
@@ -129,7 +131,7 @@ public class TachyonFile {
     }
 
     return ret;
-  }
+  } }
 
   private ByteBuffer readByteBufferFromLocal() {
     try (CT _ = new CT()) {
@@ -162,7 +164,7 @@ public class TachyonFile {
     _.Info("Try to find and read from remote workers.");
     try {
       List<NetAddress> fileLocations = CLIENT.getFileNetAddresses(FID);
-      _.Info("readByteBufferFromRemote() " + fileLocations);
+      _.Info("fileLocations: " + fileLocations);
 
       for (int k = 0; k < fileLocations.size(); k ++) {
         String host = fileLocations.get(k).mHost;
@@ -246,10 +248,11 @@ public class TachyonFile {
   }
 
   public void releaseFileLock() {
+    try (CT _ = new CT()) {
     if (mLockedFile) {
       CLIENT.unlockFile(FID);
     }
-  }
+  } }
 
   private ByteBuffer retrieveByteBufferFromRemoteMachine(InetSocketAddress address) 
       throws IOException {

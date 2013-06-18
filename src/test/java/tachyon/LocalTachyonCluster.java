@@ -11,6 +11,10 @@ import tachyon.conf.MasterConf;
 import tachyon.conf.UserConf;
 import tachyon.conf.WorkerConf;
 
+import org.apache.log4j.Logger;
+import org.apache.log4j.Level;
+import CodeTracer.CT;
+
 /**
  * Local Tachyon cluster for unit tests.
  */
@@ -73,6 +77,7 @@ public class LocalTachyonCluster {
   }
 
   public void start() throws IOException {
+    try (CT _ = new CT()) {
     mTachyonHome = File.createTempFile("Tachyon", "").getAbsoluteFile() + "UnitTest";
     mWorkerDataFolder = mTachyonHome + "/ramdisk";
     String masterDataFolder = mTachyonHome + "/data";
@@ -126,7 +131,7 @@ public class LocalTachyonCluster {
     };
     mWorkerThread = new Thread(runWorker);
     mWorkerThread.start();
-  }
+  } }
 
   public void stop() throws Exception {
     mMaster.stop();
@@ -143,6 +148,7 @@ public class LocalTachyonCluster {
   }
 
   public static void main(String[] args) throws Exception {
+    try (CT _ = new CT(args)) {
     LocalTachyonCluster cluster = new LocalTachyonCluster(100);
     cluster.start();
     CommonUtils.sleepMs(null, 1000);
@@ -154,5 +160,5 @@ public class LocalTachyonCluster {
     CommonUtils.sleepMs(null, 1000);
     cluster.stop();
     CommonUtils.sleepMs(null, 1000);
-  }
+  } }
 }

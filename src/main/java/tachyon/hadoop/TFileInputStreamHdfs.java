@@ -18,6 +18,9 @@ import tachyon.client.TachyonClient;
 import tachyon.client.TachyonFile;
 import tachyon.conf.UserConf;
 
+import CodeTracer.CT;
+
+
 public class TFileInputStreamHdfs extends InputStream implements Seekable, PositionedReadable {
   private static Logger LOG = Logger.getLogger(Constants.LOGGER_TYPE);
 
@@ -38,8 +41,7 @@ public class TFileInputStreamHdfs extends InputStream implements Seekable, Posit
 
   public TFileInputStreamHdfs(TachyonClient tachyonClient, int fileId, 
       Path hdfsPath, Configuration conf, int bufferSize) {
-    LOG.debug("PartitionInputStreamHdfs(" + tachyonClient + ", " + fileId + ", "
-        + hdfsPath + ", " + conf + ", " + bufferSize + ")");
+    try (CT _ = new CT(tachyonClient, fileId, hdfsPath, conf, bufferSize)) {
     mCurrentPosition = 0;
     mTachyonClient = tachyonClient;
     mFileId = fileId;
@@ -51,10 +53,10 @@ public class TFileInputStreamHdfs extends InputStream implements Seekable, Posit
     try {
       mTachyonFileInputStream = tachyonFile.getInStream(OpType.READ_TRY_CACHE);
     } catch (IOException e) {
-      LOG.error(e.getMessage());
+      _.Error(e.getMessage());
       return;
     }
-  }
+  } }
 
   /**
    * Read upto the specified number of bytes, from a given position within a file, and return the
@@ -121,6 +123,7 @@ public class TFileInputStreamHdfs extends InputStream implements Seekable, Posit
 
   @Override
   public int read() throws IOException {
+    try (CT _ = new CT()) {
     if (mTachyonFileInputStream != null) {
       int ret = 0;
       try {
@@ -128,7 +131,7 @@ public class TFileInputStreamHdfs extends InputStream implements Seekable, Posit
         mCurrentPosition ++;
         return ret;
       } catch (IOException e) {
-        LOG.error(e.getMessage(), e);
+        _.Error(e.getMessage());
         mTachyonFileInputStream = null;
       }
     }
@@ -142,7 +145,7 @@ public class TFileInputStreamHdfs extends InputStream implements Seekable, Posit
     mHdfsInputStream.seek(mCurrentPosition);
 
     return readFromHdfsBuffer();
-  }
+  } }
 
   @Override
   public int read(byte b[]) throws IOException {
@@ -151,14 +154,16 @@ public class TFileInputStreamHdfs extends InputStream implements Seekable, Posit
 
   @Override
   public int read(byte b[], int off, int len) throws IOException {
+    try (CT _ = new CT(b, off, len)) {
     if (mTachyonFileInputStream != null) {
       int ret = 0;
       try {
         ret = mTachyonFileInputStream.read(b, off, len);
         mCurrentPosition += ret;
+        _.Returns(ret);
         return ret;
       } catch (IOException e) {
-        LOG.error(e.getMessage(), e);
+        _.Error(e.getMessage());
         mTachyonFileInputStream = null;
       }
     }
@@ -169,7 +174,7 @@ public class TFileInputStreamHdfs extends InputStream implements Seekable, Posit
         return -1;
       }
       return 1;
-    }
+    } }
 
     FileSystem fs = mHdfsPath.getFileSystem(mHadoopConf);
     mHdfsInputStream = fs.open(mHdfsPath, mHadoopBufferSize);
@@ -183,19 +188,20 @@ public class TFileInputStreamHdfs extends InputStream implements Seekable, Posit
   }
 
   private int readFromHdfsBuffer() throws IOException {
+    try (CT _ = new CT()) {
     if (mBufferPosition < mBufferLimit) {
       return mBuffer[mBufferPosition ++];
     }
-    LOG.error("Reading from HDFS directly");
+    _.Error("Reading from HDFS directly");
     while ((mBufferLimit = mHdfsInputStream.read(mBuffer)) == 0) {
-      LOG.error("Read 0 bytes in readFromHdfsBuffer for " + mHdfsPath); 
+      _.Error("Read 0 bytes in readFromHdfsBuffer for " + mHdfsPath); 
     }
     if (mBufferLimit == -1) {
       return -1;
     }
     mBufferPosition = 0;
     return mBuffer[mBufferPosition ++];
-  }
+  } }
 
   @Override
   public void close() throws IOException {

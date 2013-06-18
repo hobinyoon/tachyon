@@ -146,6 +146,7 @@ public class TachyonFileSystem extends FileSystem {
   @Override
   public URI getUri() {
     try (CT _ = new CT()) {
+    _.Returns(mUri);
     return mUri;
   } }
 

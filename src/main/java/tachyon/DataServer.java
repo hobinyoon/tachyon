@@ -15,14 +15,16 @@ import java.util.Map;
 import org.apache.thrift.TException;
 import org.apache.log4j.Logger;
 
+import tachyon.Constants;
 import CodeTracer.CT;
+
 
 /**
  * The Server to serve data file read request from remote machines. The current implementation
  * is based on non-blocking NIO.
  */
 public class DataServer implements Runnable {
-  private static final Logger LOG = Logger.getLogger(Constants.LOGGER_TYPE);
+  private final Logger LOG = Logger.getLogger(Constants.LOGGER_TYPE);
 
   // The host:port combination to listen on
   private InetSocketAddress mAddress;
@@ -45,14 +47,14 @@ public class DataServer implements Runnable {
   private boolean mShutdowned = false;
 
   public DataServer(InetSocketAddress address, WorkerServiceHandler workerServiceHandler) {
-    try (CT _ = new CT()) {
+    try (CT _ = new CT(address, workerServiceHandler)) {
     _.Info("Starting DataServer @ " + address);
     mAddress = address;
     mWorkerServiceHandler = workerServiceHandler;
     try {
       mSelector = initSelector();
     } catch (IOException e) {
-      LOG.error(e.getMessage() + mAddress, e);
+      _.Error(e.getMessage() + mAddress);
       CommonUtils.runtimeException(e);
     }
   } }
@@ -88,6 +90,7 @@ public class DataServer implements Runnable {
   }
 
   private void read(SelectionKey key) throws IOException {
+    try (CT _ = new CT(key)) {
     SocketChannel socketChannel = (SocketChannel) key.channel();
 
     DataServerMessage tMessage;
@@ -122,7 +125,7 @@ public class DataServer implements Runnable {
 
     if (tMessage.isMessageReady()) {
       key.interestOps(SelectionKey.OP_WRITE);
-      LOG.info("Get request for " + tMessage.getFileId());
+      _.Info("Get request for " + tMessage.getFileId());
       try {
         mWorkerServiceHandler.lockFile(tMessage.getFileId(), Users.sDATASERVER_USER_ID);
       } catch (TException e) {
@@ -135,9 +138,10 @@ public class DataServer implements Runnable {
       }
       mSendingData.put(socketChannel, tResponseMessage);
     }
-  }
+  } }
 
   private void write(SelectionKey key) {
+    try (CT _ = new CT(key)) {
     SocketChannel socketChannel = (SocketChannel) key.channel();
 
     DataServerMessage sendMessage = mSendingData.get(socketChannel);
@@ -147,14 +151,14 @@ public class DataServer implements Runnable {
       sendMessage.send(socketChannel);
     } catch (IOException e) {
       closeChannel = true;
-      LOG.error(e.getMessage());
+      _.Error(e.getMessage());
     }
 
     if (sendMessage.finishSending() || closeChannel) { 
       try {
         key.channel().close();
       } catch (IOException e) {
-        LOG.error(e.getMessage());
+        _.Error(e.getMessage());
       }
       key.cancel();
       mReceivingData.remove(socketChannel);
@@ -167,7 +171,7 @@ public class DataServer implements Runnable {
         CommonUtils.runtimeException(e);
       }
     }
-  }
+  } }
 
   public void close() throws IOException {
     mShutdown = true;
@@ -181,10 +185,13 @@ public class DataServer implements Runnable {
 
   @Override
   public void run() {
+    try (CT _ = new CT()) {
     while (true) {
       try {
         // Wait for an event one of the registered channels.
+        _.Info("wait for select()");
         mSelector.select();
+        _.Info("");
         if (mShutdown) {
           mShutdowned = true;
           return;
@@ -211,9 +218,9 @@ public class DataServer implements Runnable {
           }
         }
       } catch (Exception e) {
-        LOG.error(e.getMessage(), e);
+        _.Error(e.getMessage());
         throw new RuntimeException(e);
       }
     }
-  }
+  } }
 }

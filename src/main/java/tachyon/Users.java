@@ -10,6 +10,7 @@ import java.util.Map.Entry;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
+import org.apache.log4j.Level;
 
 import tachyon.conf.CommonConf;
 
@@ -53,8 +54,8 @@ public class Users {
   }
 
   public List<Long> checkStatus(WorkerInfo workerInfo) {
-	  try (CT _ = new CT(workerInfo)) {
-    _.Debug("Worker is checking all users' status.");
+	  try (CT _ = new CT(Level.TRACE, workerInfo)) {
+    // checking all users' status.
     List<Long> ret = new ArrayList<Long>();
     synchronized (USERS) {
       List<Long> toRemoveUsers = new ArrayList<Long>();

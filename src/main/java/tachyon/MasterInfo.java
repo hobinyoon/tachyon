@@ -42,6 +42,7 @@ import tachyon.thrift.SuspectedFileSizeException;
 import tachyon.thrift.TableColumnException;
 import tachyon.thrift.TableDoesNotExistException;
 
+import org.apache.log4j.Level;
 import CodeTracer.CT;
 
 /**
@@ -607,15 +608,15 @@ public class MasterInfo {
   }
 
   public int getFileId(String filePath) throws InvalidPathException {
-    LOG.debug("getFileId(" + filePath + ")");
+		try (CT _ = new CT(filePath)) {
     Inode inode = getInode(filePath);
     int ret = -1;
     if (inode != null) {
       ret = inode.getId();
     }
-    LOG.debug("getFileId(" + filePath + "): " + ret);
+    _.Returns(ret);
     return ret;
-  }
+  } }
 
   public List<Integer> getFilesIds(List<String> pathList)
       throws InvalidPathException, FileDoesNotExistException {
@@ -1070,12 +1071,12 @@ public class MasterInfo {
   }
 
   public Command workerHeartbeat(long workerId, long usedBytes, List<Integer> removedFileIds) {
-    LOG.debug("WorkerId: " + workerId);
+		try (CT _ = new CT(Level.TRACE, workerId, usedBytes, removedFileIds)) {
     synchronized (mWorkers) {
       WorkerInfo tWorkerInfo = mWorkers.get(workerId);
 
       if (tWorkerInfo == null) {
-        LOG.info("worker_heartbeat(): Does not contain worker with ID " + workerId +
+        _.Info("worker_heartbeat(): Does not contain worker with ID " + workerId +
             " . Send command to let it re-register.");
         return new Command(CommandType.Register, ByteBuffer.allocate(0));
       }
@@ -1088,17 +1089,17 @@ public class MasterInfo {
         for (int id : removedFileIds) {
           Inode inode = mInodes.get(id);
           if (inode == null) {
-            LOG.error("Data " + id + " does not exist");
+            _.Error("Data " + id + " does not exist");
           } else if (inode.isFile()) {
             ((InodeFile) inode).removeLocation(workerId);
-            LOG.debug("Data " + id + " was evicted from worker " + workerId);
+            _.Debug("Data " + id + " was evicted from worker " + workerId);
           }
         }
       }
     }
 
     return new Command(CommandType.Nothing, ByteBuffer.allocate(0));
-  }
+  } }
 
   private void writeCheckpoint() throws IOException {
 		try (CT _ = new CT()) {

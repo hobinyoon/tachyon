@@ -536,13 +536,14 @@ public class TachyonClient {
 
   public synchronized TachyonFile getFile(String path, boolean useCachedMetadata) 
       throws InvalidPathException {
+	  try (CT _ = new CT(path, useCachedMetadata)) {
     path = CommonUtils.cleanPath(path);
     ClientFileInfo clientFileInfo = getClientFileInfo(path, useCachedMetadata);
     if (clientFileInfo == null) {
       return null;
     }
     return new TachyonFile(this, clientFileInfo);
-  }
+  } }
 
   public synchronized TachyonFile getFile(int fileId) {
     ClientFileInfo clientFileInfo = getClientFileInfo(fileId);

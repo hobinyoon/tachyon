@@ -8,6 +8,7 @@ import java.util.Set;
 
 import org.apache.thrift.TException;
 import org.apache.log4j.Logger;
+import org.apache.log4j.Level;
 
 import tachyon.conf.CommonConf;
 import tachyon.thrift.ClientFileInfo;
@@ -257,9 +258,9 @@ public class MasterServiceHandler implements MasterService.Iface {
   @Override
   public Command worker_heartbeat(long workerId, long usedBytes, List<Integer> removedFileIds)
       throws TException {
-		//try (CT _ = new CT()) {
+		try (CT _ = new CT(Level.TRACE, workerId, usedBytes, removedFileIds)) {
     return mMasterInfo.workerHeartbeat(workerId, usedBytes, removedFileIds);
-  } //}
+  } }
 
   @Override
   public long worker_register(NetAddress workerNetAddress, long totalBytes, long usedBytes,

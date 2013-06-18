@@ -15,6 +15,7 @@ import java.util.concurrent.BlockingQueue;
 
 import org.apache.thrift.TException;
 import org.apache.log4j.Logger;
+import org.apache.log4j.Level;
 import org.apache.commons.io.FileUtils;
 
 import tachyon.conf.CommonConf;
@@ -170,7 +171,7 @@ public class WorkerServiceHandler implements WorkerService.Iface {
   } }
 
   public void checkStatus() {
-    try (CT _ = new CT()) {
+    try (CT _ = new CT(Level.TRACE)) {
     List<Long> removedUsers = mUsers.checkStatus(mWorkerInfo);
 
     for (long userId : removedUsers) {
@@ -234,13 +235,14 @@ public class WorkerServiceHandler implements WorkerService.Iface {
   } }
 
   public Command heartbeat() throws TException {
+		try (CT _ = new CT(Level.TRACE)) {
     ArrayList<Integer> sendRemovedPartitionList = new ArrayList<Integer>();
     while (mRemovedFileList.size() > 0) {
       sendRemovedPartitionList.add(mRemovedFileList.poll());
     }
     return mMasterClient.worker_heartbeat(mWorkerInfo.getId(), mWorkerInfo.getUsedBytes(),
         sendRemovedPartitionList);
-  }
+  } }
 
   private void initializeWorkerInfo() 
       throws FileDoesNotExistException, SuspectedFileSizeException, TException {
