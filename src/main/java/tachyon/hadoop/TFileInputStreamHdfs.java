@@ -155,6 +155,7 @@ public class TFileInputStreamHdfs extends InputStream implements Seekable, Posit
   @Override
   public int read(byte b[], int off, int len) throws IOException {
     try (CT _ = new CT(b, off, len)) {
+    _.StackTrace();
     if (mTachyonFileInputStream != null) {
       int ret = 0;
       try {

@@ -19,16 +19,23 @@ import tachyon.thrift.InvalidPathException;
 import tachyon.thrift.ClientFileInfo;
 
 import tachyon.CommonUtils;
+import tachyon.Constants;
 import tachyon.client.InStream;
 import tachyon.client.OpType;
 import tachyon.client.OutStream;
 import tachyon.client.TachyonClient;
 import tachyon.client.TachyonFile;
 
+import org.apache.log4j.Logger;
+import CodeTracer.CT;
+
+
 /**
  * Class for handling command line inputs.
  */ 
 public class TFsShell {
+  private static final Logger LOG = Logger.getLogger(Constants.LOGGER_TYPE);
+
   public void printUsage(String cmd) {}
   public void close() {}
 
@@ -68,6 +75,7 @@ public class TFsShell {
    * @throws InvalidPathException
    */
   public int mkdir(String argv[]) throws InvalidPathException, FileAlreadyExistException {
+    try (CT _ = new CT(argv)) {
     if (argv.length != 2) {
       System.out.println("Usage: tfs mkdir <path>");
       return -1;
@@ -81,7 +89,7 @@ public class TFsShell {
     } else {
       return -1;
     }
-  }
+  } }
 
   /**
    * Removes the file or directory specified by argv. Will remove all files and directories in
@@ -275,6 +283,8 @@ public class TFsShell {
    * @param argv[] Array of arguments given by the user's input from the terminal
    */
   public static void main(String argv[]) throws TException{
+    CT.setLogger(LOG);
+
     TFsShell shell = new TFsShell();
     System.exit(shell.run(argv));
   }

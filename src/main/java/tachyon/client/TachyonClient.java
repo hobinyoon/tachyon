@@ -82,12 +82,13 @@ public class TachyonClient {
   }
 
   public static synchronized TachyonClient getClient(String tachyonAddress) {
+    try (CT _ = new CT(tachyonAddress)) {
     String[] address = tachyonAddress.split(":");
     if (address.length != 2) {
       CommonUtils.illegalArgumentException("Illegal Tachyon Master Address: " + tachyonAddress);
     }
     return getClient(new InetSocketAddress(address[0], Integer.parseInt(address[1])));
-  }
+  } }
 
   public synchronized void accessLocalFile(int fileId) {
 	  try (CT _ = new CT(fileId)) {

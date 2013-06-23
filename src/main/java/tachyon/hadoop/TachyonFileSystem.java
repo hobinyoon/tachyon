@@ -216,7 +216,7 @@ public class TachyonFileSystem extends FileSystem {
     CT.setLogger(LOG);
 
     try (CT _ = new CT(uri, conf)) {
-    _.Debug("Connecting TachyonSystem: " + uri.getHost() + ":" + uri.getPort());
+    //_.StackTrace();
     mTachyonClient = TachyonClient.getClient(new InetSocketAddress(uri.getHost(), uri.getPort()));
     mTachyonHeader = "tachyon://" + uri.getHost() + ":" + uri.getPort() + "";
     Utils.HDFS_ADDRESS = mTachyonClient.getUnderfsAddress();
@@ -267,6 +267,7 @@ public class TachyonFileSystem extends FileSystem {
    */
   public FSDataInputStream open(Path cPath, int bufferSize) throws IOException {
     try (CT _ = new CT(cPath, bufferSize)) {
+    _.StackTrace();
     String path = Utils.getPathWithoutScheme(cPath);
 
     String rawPath = path;

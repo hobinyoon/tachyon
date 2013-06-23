@@ -70,6 +70,8 @@ public class BasicOperations {
   public static void main(String[] args)
       throws SuspectedFileSizeException, InvalidPathException, IOException,
       FileAlreadyExistException {
+    CT.setLogger(LOG);
+
     if (args.length != 3) {
       System.out.println("java -cp target/tachyon-" + Version.VERSION + 
           "-jar-with-dependencies.jar " +

@@ -383,7 +383,9 @@ public class MasterInfo {
       mMasterLogWriter.flush();
 
       _.Debug("createFile: File Created: " + ret + " parent: " + inode);
-      return ret.getId();
+      int r_ = ret.getId();
+      _.Returns(r_);
+      return r_;
     }
   } }
 

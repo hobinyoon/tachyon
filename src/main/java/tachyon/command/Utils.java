@@ -5,6 +5,9 @@ import java.net.InetSocketAddress;
 import tachyon.Constants;
 import tachyon.thrift.InvalidPathException;
 
+import CodeTracer.CT;
+
+
 /**
  * Class for convenience methods used by TFsShell.
  */
@@ -37,11 +40,13 @@ public class Utils {
    * @throws InvalidPathException 
    */ 
   public static String getFilePath(String path) throws InvalidPathException {
+    try (CT _ = new CT(path)) {
     path = validateTachyonPath(path);
     path = path.substring(HEADER.length());
     String ret = path.substring(path.indexOf("/"));
+    _.Returns(ret);
     return ret;
-  }
+  } }
 
   /**
    * Obtains the InetSocketAddress from a path by parsing the hostname:port portion of the path.

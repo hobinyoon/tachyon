@@ -10,6 +10,8 @@ import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.List;
 
+import CodeTracer.CT;
+
 /**
  * Single node UnderFilesystem implementation.
  * 
@@ -18,8 +20,9 @@ import java.util.List;
 public class UnderFileSystemSingleLocal extends UnderFileSystem {
 
   public static UnderFileSystem getClient() {
+    try (CT _ = new CT()) {
     return new UnderFileSystemSingleLocal();
-  }
+  } }
 
   @Override
   public void close() throws IOException {
@@ -32,9 +35,10 @@ public class UnderFileSystemSingleLocal extends UnderFileSystem {
 
   @Override
   public boolean delete(String path, boolean recursive) throws IOException {
+    try (CT _ = new CT(path, recursive)) {
     File file = new File(path);
     return file.delete();
-  }
+  } }
 
   @Override
   public boolean exists(String path) throws IOException {

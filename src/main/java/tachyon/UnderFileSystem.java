@@ -5,12 +5,16 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
 
+import CodeTracer.CT;
+
+
 /**
  * Tachyon stores data into an under layer file system. Any file system implementing
  * this interface can be a valid under layer file system
  */
 public abstract class UnderFileSystem {
   public static UnderFileSystem getUnderFileSystem(String path) {
+    try (CT _ = new CT()) {
     if (path.startsWith("hdfs://") || path.startsWith("file://") || path.startsWith("s3://")) {
       return UnderFileSystemHdfs.getClient(path);
     } else if (path.startsWith("/")) {
@@ -18,7 +22,7 @@ public abstract class UnderFileSystem {
     }
     CommonUtils.illegalArgumentException("Unknown under file system scheme " + path);
     return null;
-  }
+  } }
 
   public abstract void close() throws IOException;
 
