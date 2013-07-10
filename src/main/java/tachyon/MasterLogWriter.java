@@ -11,6 +11,9 @@ import org.apache.log4j.Logger;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Output;
 
+import org.apache.log4j.Level;
+import CodeTracer.CT;
+
 /**
  * <code>MasterLogWriter</code> writes log into master's write-ahead-log or checkpoint data files.
  */
@@ -24,6 +27,7 @@ public class MasterLogWriter {
   private OutputStream mOutputStream;
 
   public MasterLogWriter(String fileName) throws IOException {
+    try (CT _ = new CT(Level.DEBUG, fileName)) {
     LOG_FILE_NAME = fileName;
     mKryo = KryoFactory.createLogKryo();
     try {
@@ -32,10 +36,10 @@ public class MasterLogWriter {
     } catch (FileNotFoundException e) {
       CommonUtils.runtimeException(e);
     }
-  }
+  } }
 
   public synchronized void append(Inode inode, boolean flush) {
-    LOG.debug("Append and Flush " + inode);
+    try (CT _ = new CT(Level.DEBUG, inode, flush)) {
     if (inode.isFile()) {
       mKryo.writeClassAndObject(mOutput, LogType.InodeFile);
       mKryo.writeClassAndObject(mOutput, (InodeFile) inode);
@@ -49,25 +53,27 @@ public class MasterLogWriter {
     if (flush) {
       flush();
     }
-  }
+  } }
 
   public void append(List<Inode> inodeList, boolean flush) {
-    LOG.debug("Append and Flush List<Inode> " + inodeList);
+    try (CT _ = new CT(Level.DEBUG, inodeList)) {
     for (int k = 0; k < inodeList.size(); k ++) {
       append(inodeList.get(k), false);
     }
     if (flush) {
       flush();
     }
-  }
+  } }
 
   public synchronized void appendAndFlush(CheckpointInfo checkpointInfo) {
+    try (CT _ = new CT(Level.DEBUG, checkpointInfo)) {
     mKryo.writeClassAndObject(mOutput, LogType.CheckpointInfo);
     mKryo.writeClassAndObject(mOutput, checkpointInfo);
     flush();
-  }
+  } }
 
   public synchronized void flush() {
+    try (CT _ = new CT(Level.DEBUG)) {
     mOutput.flush();
     try {
       mOutputStream.flush();
@@ -77,14 +83,15 @@ public class MasterLogWriter {
     } catch (IOException e) {
       CommonUtils.runtimeException(e);
     }
-  }
+  } }
 
   public synchronized void close() {
+    try (CT _ = new CT(Level.DEBUG)) {
     mOutput.close();
     try {
       mOutputStream.close();
     } catch (IOException e) {
       CommonUtils.runtimeException(e);
     }
-  }
+  } }
 }

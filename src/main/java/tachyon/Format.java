@@ -7,6 +7,8 @@ import org.apache.log4j.Logger;
 import tachyon.conf.CommonConf;
 import tachyon.conf.MasterConf;
 
+import CodeTracer.CT;
+
 /**
  * Format Tachyon File System.
  */
@@ -19,6 +21,8 @@ public class Format {
           "-jar-with-dependencies.jar tachyon.Format");
       System.exit(-1);
     }
+
+    CT.setLogger(LOG);
 
     MasterConf masterConf = MasterConf.get();
     UnderFileSystem ufs = UnderFileSystem.getUnderFileSystem(masterConf.CHECKPOINT_FILE);

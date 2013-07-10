@@ -30,8 +30,10 @@ public class UnderFileSystemSingleLocal extends UnderFileSystem {
 
   @Override
   public OutputStream create(String path) throws IOException {
+    try (CT _ = new CT(path)) {
+    //_.StackTrace();
     return new FileOutputStream(path);
-  }
+  } }
 
   @Override
   public boolean delete(String path, boolean recursive) throws IOException {

@@ -96,9 +96,6 @@ public class TachyonFileSystem extends FileSystem {
     try (CT _ = new CT(path)) {
     String filePath = Utils.getPathWithoutScheme(path);
     Path hdfsPath = Utils.getHDFSPath(filePath);
-
-    _.Debug("TachyonFileSystem getFilesStatus(" + path + "): Corresponding HDFS Path: " + hdfsPath);
-
     FileSystem fs = hdfsPath.getFileSystem(getConf());
     FileStatus hfs = fs.getFileStatus(hdfsPath);
 
@@ -134,10 +131,9 @@ public class TachyonFileSystem extends FileSystem {
     FileStatus ret = new FileStatus(hfs.getLen(), hfs.isDir(), hfs.getReplication(),
         Integer.MAX_VALUE, hfs.getModificationTime(), hfs.getAccessTime(), hfs.getPermission(),
         hfs.getOwner(), hfs.getGroup(), new Path(mTachyonHeader + filePath));
-    _.Debug(mTachyonHeader + filePath);
-
-    _.Debug("HFS: " + Utils.toStringHadoopFileStatus(hfs));
-    _.Debug("TFS: " + Utils.toStringHadoopFileStatus(ret));
+    //_.Debug(mTachyonHeader + filePath);
+    //_.Debug("HFS: " + Utils.toStringHadoopFileStatus(hfs));
+    //_.Debug("TFS: " + Utils.toStringHadoopFileStatus(ret));
 
     _.Returns(ret);
     return ret;
@@ -216,6 +212,7 @@ public class TachyonFileSystem extends FileSystem {
     CT.setLogger(LOG);
 
     try (CT _ = new CT(uri, conf)) {
+    //_.Info("fs.s3n.awsAccessKeyId=" + conf.get("fs.s3n.awsAccessKeyId"));
     //_.StackTrace();
     mTachyonClient = TachyonClient.getClient(new InetSocketAddress(uri.getHost(), uri.getPort()));
     mTachyonHeader = "tachyon://" + uri.getHost() + ":" + uri.getPort() + "";
@@ -267,7 +264,7 @@ public class TachyonFileSystem extends FileSystem {
    */
   public FSDataInputStream open(Path cPath, int bufferSize) throws IOException {
     try (CT _ = new CT(cPath, bufferSize)) {
-    _.StackTrace();
+    //_.StackTrace();
     String path = Utils.getPathWithoutScheme(cPath);
 
     String rawPath = path;

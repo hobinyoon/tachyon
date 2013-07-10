@@ -130,6 +130,7 @@ public class TachyonFile {
       ret = readByteBufferFromRemote();
     }
 
+    _.Returns(ret);
     return ret;
   } }
 
