@@ -13,6 +13,8 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.log4j.Logger;
 
+import CodeTracer.CT;
+
 /**
  * HDFS UnderFilesystem implementation.
  */
@@ -27,14 +29,19 @@ public class UnderFileSystemHdfs extends UnderFileSystem {
   }
 
   private UnderFileSystemHdfs(String fsDefaultName) {
+    try (CT _ = new CT(fsDefaultName)) {
     try {
       Configuration tConf = new Configuration();
       tConf.set("fs.default.name", fsDefaultName);
+      if (System.getProperty("fs.s3n.awsAccessKeyId") != null)
+        tConf.set("fs.s3n.awsAccessKeyId", System.getProperty("fs.s3n.awsAccessKeyId"));
+      if (System.getProperty("fs.s3n.awsSecretAccessKey") != null)
+        tConf.set("fs.s3n.awsSecretAccessKey", System.getProperty("fs.s3n.awsSecretAccessKey"));
       mFs = FileSystem.get(tConf);
     } catch (IOException e) {
       CommonUtils.runtimeException(e);
     }
-  }
+  } }
 
   @Override
   public void close() throws IOException {
@@ -60,12 +67,14 @@ public class UnderFileSystemHdfs extends UnderFileSystem {
 
   @Override
   public boolean delete(String path, boolean recursive) throws IOException {
-    LOG.debug("deleting " + path + " " + recursive);
+    try (CT _ = new CT(path, recursive)) {
     IOException te = null;
     int cnt = 0;
     while (cnt < MAX_TRY) {
       try {
-        return mFs.delete(new Path(path), recursive);
+        boolean r = mFs.delete(new Path(path), recursive);
+        _.Returns(r);
+        return r;
       } catch (IOException e) {
         cnt ++;
         LOG.error(cnt + " : " + e.getMessage(), e);
@@ -74,7 +83,7 @@ public class UnderFileSystemHdfs extends UnderFileSystem {
       }
     }
     throw te;
-  }
+  } }
 
   @Override
   public boolean exists(String path) {
@@ -131,14 +140,18 @@ public class UnderFileSystemHdfs extends UnderFileSystem {
 
   @Override
   public boolean mkdirs(String path, boolean createParent) {
+    try (CT _ = new CT(path, createParent)) {
     IOException te = null;
     int cnt = 0;
     while (cnt < MAX_TRY) {
       try {
         if (mFs.exists(new Path(path))) {
+          _.Returns(true);
           return true;
         }
-        return mFs.mkdirs(new Path(path), null);
+        boolean r = mFs.mkdirs(new Path(path), null);
+        _.Returns(r);
+        return r;
       } catch (IOException e) {
         cnt ++;
         LOG.error(cnt + " : " + e.getMessage(), e);
@@ -148,7 +161,7 @@ public class UnderFileSystemHdfs extends UnderFileSystem {
     }
     CommonUtils.runtimeException(te);
     return false;
-  }
+  } }
 
   @Override
   public FSDataInputStream open(String path) {
