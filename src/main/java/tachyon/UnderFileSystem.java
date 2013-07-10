@@ -15,7 +15,7 @@ import CodeTracer.CT;
 public abstract class UnderFileSystem {
   public static UnderFileSystem getUnderFileSystem(String path) {
     try (CT _ = new CT()) {
-    if (path.startsWith("hdfs://") || path.startsWith("file://") || path.startsWith("s3://")) {
+    if (path.startsWith("hdfs://") || path.startsWith("file://") || path.startsWith("s3://") || path.startsWith("s3n://")) {
       return UnderFileSystemHdfs.getClient(path);
     } else if (path.startsWith("/")) {
       return UnderFileSystemSingleLocal.getClient();
