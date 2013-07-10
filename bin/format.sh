@@ -23,4 +23,4 @@ fi
 
 echo "Formatting Tachyon @ $MASTER_ADDRESS"
 # echo "Starting master: (java -cp $TACHYON_JAR -Dtachyon.home=$TACHYON_HOME -Dtachyon.is.system=true $TACHYON_JAVA_OPTS tachyon.Master ) &> $TACHYON_HOME/logs/master.log &"
-java -cp $TACHYON_JAR -Dtachyon.home=$TACHYON_HOME -Dtachyon.is.system=true $TACHYON_JAVA_OPTS tachyon.Format
+java -cp $TACHYON_JAR -Dtachyon.home=$TACHYON_HOME -Dtachyon.is.system=true $TACHYON_JAVA_OPTS -Dlog4j.configuration=file:$TACHYON_HOME/conf/log4j.properties -Dtachyon.logger.type=USER_LOGGER tachyon.Format
