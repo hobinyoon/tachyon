@@ -9,4 +9,4 @@ src/main/java/tachyon/thrift
 tachyon.iml
 target/
 src/main/java/tachyon/Version.java
-./tachyon/
+/tachyon
