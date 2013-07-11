@@ -1,1 +1,1 @@
-/home/hobin/private/tachyon-env.sh
+/home/hobin/private/tachyon/conf/tachyon-env.sh
