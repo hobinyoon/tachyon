@@ -191,7 +191,6 @@ public class DataServer implements Runnable {
         // Wait for an event one of the registered channels.
         _.Info("wait for select()");
         mSelector.select();
-        _.Info("");
         if (mShutdown) {
           mShutdowned = true;
           return;

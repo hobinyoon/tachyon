@@ -94,7 +94,7 @@ public class InStream extends InputStream {
     _.Debug(FILE.CLIENT_FILE_INFO.toString());
 
     if (mBuffer != null) {
-      _.Info(mBuffer.toString());
+      _.Debug(mBuffer.toString());
       int ret = Math.min(len, mBuffer.remaining());
       if (ret == 0) {
         close();

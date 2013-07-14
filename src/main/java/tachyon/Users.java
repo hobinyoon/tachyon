@@ -113,7 +113,7 @@ public class Users {
       }
     }
 
-    _.Info(sb.toString());
+    _.Debug(sb.toString());
     _.Returns(ret);
     return ret;
   } }
