@@ -91,7 +91,7 @@ public class InStream extends InputStream {
       return 0;
     }
 
-    _.Info(FILE.CLIENT_FILE_INFO.toString());
+    _.Debug(FILE.CLIENT_FILE_INFO.toString());
 
     if (mBuffer != null) {
       _.Info(mBuffer.toString());
