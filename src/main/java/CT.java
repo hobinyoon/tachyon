@@ -19,7 +19,7 @@ public class CT implements AutoCloseable
   String _input = null;
   String _returns = null;
 
-  Level _log_level = Level.INFO;
+  Level _log_level = Level.DEBUG;
 
   static public void setLogger(Logger logger)
   {
