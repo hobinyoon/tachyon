@@ -21,8 +21,13 @@ public class CT implements AutoCloseable
 
   Level _log_level = Level.DEBUG;
 
+  static boolean _enabled = false;
+
   static public void setLogger(Logger logger)
   {
+    if (! _enabled)
+      return;
+
     if (_logger == null)
       _logger = logger;
     else
@@ -37,6 +42,9 @@ public class CT implements AutoCloseable
 
 	public CT(Object... objs)
 	{
+    if (! _enabled)
+      return;
+
     StringBuilder sb = null;
 
     boolean first_arg = true;
@@ -79,6 +87,9 @@ public class CT implements AutoCloseable
 	@Override
 	public void close()
   {
+    if (! _enabled)
+      return;
+
 		StackTraceElement ste = Thread.currentThread().getStackTrace()[2];
 		_Log(-1, ste);
 	}
@@ -108,6 +119,9 @@ public class CT implements AutoCloseable
 
 	public void Log(String s)
 	{
+    if (! _enabled)
+      return;
+
     if (_logger != null)
       _logger.log(_log_level, _Logstr(s));
     else
@@ -116,6 +130,9 @@ public class CT implements AutoCloseable
 
 	public void Info(String s)
 	{
+    if (! _enabled)
+      return;
+
     if (_logger != null)
       _logger.info(_Logstr(s));
     else
@@ -124,6 +141,9 @@ public class CT implements AutoCloseable
 
 	public void Trace(String s)
 	{
+    if (! _enabled)
+      return;
+
     if (_logger != null)
       _logger.trace(_Logstr(s));
     else
@@ -132,6 +152,9 @@ public class CT implements AutoCloseable
 
 	public void Warn(String s)
 	{
+    if (! _enabled)
+      return;
+
     if (_logger != null)
       _logger.warn(_Logstr(s));
     else
@@ -140,6 +163,9 @@ public class CT implements AutoCloseable
 
 	public void Error(String s)
 	{
+    if (! _enabled)
+      return;
+
     if (_logger != null)
       _logger.error(_Logstr(s));
     else
@@ -148,6 +174,9 @@ public class CT implements AutoCloseable
 
 	public void Debug(String s)
 	{
+    if (! _enabled)
+      return;
+
     if (_logger != null)
       _logger.debug(_Logstr(s));
     else
@@ -156,6 +185,9 @@ public class CT implements AutoCloseable
 
 	public void Fatal(String s)
 	{
+    if (! _enabled)
+      return;
+
     if (_logger != null)
       _logger.fatal(_Logstr(s));
     else
@@ -164,6 +196,9 @@ public class CT implements AutoCloseable
 
 	public void StackTrace()
 	{
+    if (! _enabled)
+      return;
+
     StackTraceElement[] ste = Thread.currentThread().getStackTrace();
     for (int i = 2; i < ste.length; i ++)
       Log(" " + ste[i]);
@@ -179,6 +214,9 @@ public class CT implements AutoCloseable
 
   public void Returns(Object... objs)
   {
+    if (! _enabled)
+      return;
+
     if (objs == null)
     {
       _returns = "null";
