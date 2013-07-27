@@ -17,4 +17,4 @@ fi
 F=$TACHYON_RAM_FOLDER
 
 echo "Formatting RamFS: $F"
-umount -f $F ; mkdir -p $F; mount -t ramfs -o size=15g ramfs $F ; chmod a+w $F ;
+sudo umount -f $F ; sudo mkdir -p $F ; sudo chown ubuntu -R $F ; sudo mount -t ramfs -o size=2g ramfs $F ; sudo chmod a+w $F ;
